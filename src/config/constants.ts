@@ -1,0 +1,51 @@
+import {Territory} from "./types.ts";
+
+export const allTerritories: Territory[] = [
+	"alaska", "northwest_territory", "greenland", "alberta", "ontario", "quebec", "western_united_states", "eastern_united_states", "central_america", "venezuela", "peru", "brazil", "argentina", "iceland", "scandinavia", "ukraine", "great_britain", "northern_europe", "western_europe", "southern_europe", "north_africa", "egypt", "east_africa", "congo", "south_africa", "madagascar", "ural", "siberia", "yakursk", "kamchatka", "irkutsk", "mongolia", "japan", "afghanistan", "china", "middle_east", "india", "siam", "indonesia", "new_guinea", "western_australia", "eastern_australia"
+];
+
+export const allBorders: [Territory, Territory[]][] = [
+	["alaska", ["northwest_territory", "kamchatka", "alberta"]],
+	["northwest_territory", ["alaska", "alberta", "greenland"]],
+	["greenland", ["northwest_territory", "quebec", "ontario", "iceland"]],
+	["alberta", ["northwest_territory", "ontario", "western_united_states", "alaska"]],
+	["ontario", ["alberta", "northwest_territory", "western_united_states", "eastern_united_states", "quebec", "greenland"]],
+	["quebec", ["greenland", "ontario", "eastern_united_states"]],
+	["western_united_states", ["alberta", "ontario", "eastern_united_states", "central_america"]],
+	["eastern_united_states", ["ontario", "quebec", "western_united_states", "central_america"]],
+	["central_america", ["western_united_states", "eastern_united_states", "venezuela"]],
+	["venezuela", ["central_america", "peru", "brazil"]],
+	["peru", ["venezuela", "brazil", "argentina"]],
+	["brazil", ["venezuela", "peru", "argentina", "north_africa"]],
+	["argentina", ["peru", "brazil"]],
+	["iceland", ["greenland", "scandinavia", "great_britain"]],
+	["scandinavia", ["iceland", "ukraine", "great_britain", "northern_europe"]],
+	["ukraine", ["scandinavia", "northern_europe", "southern_europe", "ural", "afghanistan", "middle_east"]],
+	["great_britain", ["iceland", "scandinavia", "ukraine", "northern_europe", "southern_europe"]],
+	["northern_europe", ["great_britain", "ukraine", "southern_europe", "western_europe", "scandinavia"]],
+	["western_europe", ["northern_europe", "southern_europe", "north_africa", "great_britain"]],
+	["southern_europe", ["western_europe", "northern_europe", "ukraine", "middle_east", "egypt", "north_africa"]],
+	["north_africa", ["brazil", "western_europe", "southern_europe", "egypt", "east_africa", "congo"]],
+	["egypt", ["north_africa", "east_africa", "middle_east", "southern_europe"]],
+	["east_africa", ["egypt", "north_africa", "congo", "south_africa", "middle_east", "madagascar"]],
+	["congo", ["east_africa", "north_africa", "south_africa"]],
+	["south_africa", ["congo", "east_africa", "madagascar"]],
+	["madagascar", ["south_africa", "east_africa"]],
+	["ural", ["ukraine", "siberia", "china", "afghanistan"]],
+	["siberia", ["ural", "yakursk", "irkutsk", "mongolia", "china"]],
+	["yakursk", ["siberia", "kamchatka", "irkutsk"]],
+	["kamchatka", ["yakursk", "irkutsk", "mongolia", "japan", "alaska"]],
+	["irkutsk", ["yakursk", "kamchatka", "mongolia", "china", "siberia"]],
+	["mongolia", ["siberia", "irkutsk", "kamchatka", "japan", "china"]],
+	["japan", ["kamchatka", "mongolia"]],
+	["afghanistan", ["ural", "ukraine", "middle_east", "india", "china"]],
+	["china", ["siberia", "mongolia", "afghanistan", "india", "siam", "ural"]],
+	["middle_east", ["ukraine", "southern_europe", "egypt", "east_africa", "india", "afghanistan"]],
+	["india", ["middle_east", "afghanistan", "china", "siam"]],
+	["siam", ["india", "china", "indonesia"]],
+	["indonesia", ["siam", "new_guinea", "western_australia"]],
+	["new_guinea", ["indonesia", "western_australia", "eastern_australia"]],
+	["western_australia", ["indonesia", "new_guinea", "eastern_australia"]],
+	["eastern_australia", ["new_guinea", "western_australia"]]
+];
+export const players = 5;
