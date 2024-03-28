@@ -1,11 +1,15 @@
 import {TerritoryOwnership, Territory} from "../config/types.ts";
 
-export const countDeploymentForPlayer = (player: number, ownership: TerritoryOwnership): number => {
-	let deployment = 0;
-	for (const territory in Object.keys(ownership) as Territory[]) {
-		if (ownership[territory as Territory].player === player) {
-			deployment += ownership[territory as Territory].troops;
+export const territoriesOwned = (player: number, ownership: TerritoryOwnership) => {
+	const territories = Object.keys({...ownership});
+
+	return territories.reduce((acc, territory) => {
+		if (player === ownership[territory as Territory].player) {
+			return acc + 1;
 		}
-	}
-	return Math.max(3, Math.floor(deployment / 3));
+		return acc;
+	}, 0);
+}
+export const countDeploymentForPlayer = (player: number, ownership: TerritoryOwnership): number => {
+	return Math.max(3, Math.floor(territoriesOwned(player, ownership) / 3));
 }

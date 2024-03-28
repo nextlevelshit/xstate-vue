@@ -2,75 +2,167 @@
   <div id="app" class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
     <div class="container max-w-xl p-8 bg-white shadow-md rounded-lg">
       <h1 class="text-2xl font-bold mb-4">Risk Game State Machine Monitor</h1>
-      <div class="state mb-4">
-        <h2 class="text-xl font-semibold mb-2">Current Player:</h2>
-        <pre> {{ JSON.stringify(currentState.context.currentPlayer, null, 2) }}</pre>
+      <div class="flex flex-col gap-2 mb-4">
+        <template v-for="event in events" :key="event">
+          <label :for="event" class="cursor-pointer">
+            <input type="radio" :id="event" v-model="selectedEvent" :value="event" class="hidden" />
+            <span :class="{'bg-slate-800 text-white': event === selectedEvent}" class="block text-lg font-bold bg-white p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">{{ event }}</span>
+          </label>
+        </template>
       </div>
-      <div class="state mb-4">
-        <h2 class="text-xl font-semibold mb-2">Ownership:</h2>
-        <pre> {{ JSON.stringify(currentState.context.ownership, null, 2) }}</pre>
+      <div class="flex flex-col gap-2 mb-4">
+        <template v-if="eventInputs[selectedEvent]">
+          <template v-for="inputType in eventInputs[selectedEvent]">
+            <h2 class="text-xl font-semibold my-2">Select {{ inputType }}:</h2>
+            <input v-if="inputType === 'troops'" v-model="input" type="number" placeholder=""
+                   class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800"/>
+            <select v-else-if="inputType === 'territory'" v-model="selectedTerritory"
+                    class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800">
+              <option v-for="{territory, player, troops} in territories" :key="territory" :value="territory">
+                [P{{ player }}] {{ territory }} ({{ troops }})
+              </option>
+            </select>
+          </template>
+        </template>
+        <button @click="sendEvent(selectedEvent)"
+                class="mt-4 text-white text-lg font-bold bg-slate-800 p-3 w-full rounded">Submit
+        </button>
+        <button @click="reset()"
+                class="mt-4 text-white text-lg font-bold bg-fuchsia-800 p-3 w-full rounded">RESET
+        </button>
       </div>
-      <div class="state mb-4">
-        <h2 class="text-xl font-semibold mb-2">Players:</h2>
-        <pre> {{ JSON.stringify(currentState.context.players, null, 2) }}</pre>
-      </div>
-      <div class="events mb-4">
-        <h2 class="text-xl font-semibold mb-2">Events:</h2>
-        <button v-for="event in events" :key="event" @click="sendEvent(event)" class="btn mr-2">{{ event }}</button>
-      </div>
-      <div class="actions mb-4">
-        <h2 class="text-xl font-semibold mb-2">Actions:</h2>
-        <ul>
-          <li v-for="action in actions" :key="action">{{ action }}</li>
-        </ul>
-      </div>
-      <div class="inputs mb-4">
-        <h2 class="text-xl font-semibold mb-2">Inputs:</h2>
-        <input type="text" v-model="input" placeholder="Enter input" class="input mr-2" />
-        <button @click="sendInput" class="btn">Submit</button>
-      </div>
+      <details class="mb-4" open>
+        <summary class="cursor-pointer text-xl font-semibold mb-2">State:</summary>
+        <pre> {{ JSON.stringify(currentState.value, null, 2) }}</pre>
+      </details>
+      <details class="mb-4" open>
+        <summary class="cursor-pointer text-xl font-semibold mb-2">Current Player:</summary>
+        <pre> {{ JSON.stringify(currentPlayer, null, 2) }}</pre>
+      </details>
+      <details class="mb-4">
+        <summary class="cursor-pointer text-xl font-semibold mb-2">Ownership:</summary>
+        <pre> {{ JSON.stringify(ownership, null, 2) }}</pre>
+      </details>
+      <details class="mb-4">
+        <summary class="cursor-pointer text-xl font-semibold mb-2">Players:</summary>
+        <pre> {{ JSON.stringify(players, null, 2) }}</pre>
+      </details>
+      <details class="mb-4">
+        <summary class="cursor-pointer text-xl font-semibold mb-2">Territories:</summary>
+        <pre> {{ JSON.stringify(territories, null, 2) }}</pre>
+      </details>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, computed } from 'vue';
-import { useMachine } from '@xstate/vue';
-import riskMachine, {RiskEvent} from './states/riskMachine';
+import {ref, computed} from 'vue';
+import {useMachine} from '@xstate/vue';
+import riskMachine, {RiskEventType} from './states/riskMachine';
+import {Territory} from './config/types';
+import {stateKey} from "./config/constants.ts"; // Import Territory type if necessary
 
 export default {
   name: 'App',
   setup() {
-    const { snapshot, send } = useMachine(riskMachine);
+    const initialContext = localStorage.getItem(stateKey);
+    const initialState = initialContext ? JSON.parse(initialContext) : riskMachine.getInitialSnapshot();
+
+    const {snapshot, send} = useMachine(riskMachine, {
+      snapshot: initialState
+    });
 
     const currentState = computed(() => snapshot.value);
 
-    const events: RiskEvent[] = [
-      // List of events supported by your state machine
-      RiskEvent.ASSIGN_FIRST_PLAYER,
-      RiskEvent.ASSIGN_TERRITORIES,
-      RiskEvent.ASSIGN_TROOPS,
-      RiskEvent.START_GAME,
-      RiskEvent.TERRITORY_CLICKED,
-      RiskEvent.END_TURN
-    ];
+    const players = computed(() => {
+      const {ownership, players} = currentState.value.context;
 
-    const actions = ref<string[]>([]);
+      return players.map((player, index) => {
+        const territories = Object.keys(ownership).filter(territory => ownership[territory as Territory].player === index);
+        const troops = territories.reduce((acc, territory) => acc + ownership[territory as Territory].troops, 0);
+        return {
+          ...player,
+          troops,
+          territories
+        };
+      });
+    });
 
-    const input = ref('');
+    const currentPlayer = computed(() => {
+      const {currentPlayer} = currentState.value.context;
+      return {
+        index: currentPlayer,
+        ...players.value[currentPlayer],
+      };
+    });
 
-    const sendEvent = (event: RiskEvent) => {
-      console.log(">>", event);
-      send({ type: event });
+    const ownership = computed(() => {
+      return currentState.value.context.ownership;
+    });
+
+    const territories = computed(() => {
+      const allTerritories = currentState.value.context.allTerritories.sort((a, b) => (a > b ? 1 : -1));
+      return allTerritories.map(territory => {
+        const ownership = currentState.value.context.ownership[territory as Territory];
+        if (!ownership) return ({territory, player: -1, troops: 0});
+        const {player, troops} = currentState.value.context.ownership[territory as Territory];
+        return {
+          territory,
+          player: player,
+          troops: troops
+        };
+      });
+    });
+
+    const eventInputs: { [key in RiskEventType]?: string[] } = {
+      [RiskEventType.ASSIGN_FIRST_PLAYER]: [],
+      [RiskEventType.ASSIGN_TERRITORIES]: [],
+      [RiskEventType.ASSIGN_TROOPS]: [],
+      [RiskEventType.START_GAME]: [],
+      [RiskEventType.TERRITORY_CLICKED]: ['territory'],
+      [RiskEventType.END_TURN]: [],
+      [RiskEventType.DEPLOY_TROOPS]: ['troops'],
     };
 
-    const sendInput = () => {
-      return;
-      // send({ type: 'USER_INPUT', data: input.value });
-      // input.value = '';
+    const events = Object.keys(eventInputs) as RiskEventType[];
+
+    const selectedEvent = ref<RiskEventType>(RiskEventType.ASSIGN_FIRST_PLAYER);
+    const input = ref("1");
+    const selectedTerritory = ref<Territory | null>(null);
+    const sendEvent = (event: RiskEventType) => {
+      const eventData: any = {type: event};
+      if (eventInputs[event]?.includes('troops')) {
+        eventData['troops'] = parseInt(input.value);
+      }
+      if (eventInputs[event]?.includes('territory') && selectedTerritory.value) {
+        eventData['territory'] = selectedTerritory.value;
+      }
+      console.log("<<", eventData);
+      send(eventData);
+      input.value = "1";
+      selectedTerritory.value = null;
+      localStorage.setItem(stateKey, JSON.stringify(currentState.value));
     };
 
-    return { currentState, events, actions, input, sendEvent, sendInput };
+    const reset = () => {
+      localStorage.removeItem(stateKey);
+      window.location.reload();
+    }
+
+    return {
+      currentState,
+      currentPlayer,
+      ownership,
+      territories,
+      players,
+      events,
+      selectedEvent,
+      input,
+      selectedTerritory,
+      sendEvent,
+      eventInputs,
+      reset
+    };
   }
 };
 </script>

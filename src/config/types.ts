@@ -6,9 +6,9 @@ export type TerritoryOwnership = {
 	};
 };
 export type Player = {
-	territories: number;
+	// territories?: number;
 	troopsToDeploy: number;
-	troops: number;
+	// troops: number;
 	name?: string;
 	color?: string;
 }
