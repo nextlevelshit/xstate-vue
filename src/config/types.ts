@@ -2,7 +2,13 @@ export type Territory = "alaska" | "northwest_territory" | "greenland" | "albert
 export type TerritoryOwnership = {
 	[key in Territory]: {
 		player: number;
-		armies: number;
+		troops: number;
 	};
 };
-
+export type Player = {
+	territories: number;
+	troopsToDeploy: number;
+	troops: number;
+	name?: string;
+	color?: string;
+}
