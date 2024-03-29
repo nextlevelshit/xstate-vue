@@ -59,7 +59,17 @@ const riskMachine = setup<Context, RiskEvent>({
 	actions: {
 		incrementCurrentPlayer: assign({
 			currentPlayer: ({context}: {context: Context}) => {
-				return (context.currentPlayer + 1) % context.players.length;
+				console.log(">> currentPlayer", context.currentPlayer);
+				// check if player has territories left
+				const countTerritories = (p: number) => Object.values(context.ownership).filter(({player}) => player === p).length;
+
+				for (let i = 1; i < context.players.length; i++) {
+					const player = (context.currentPlayer + i) % context.players.length;
+					if (countTerritories(player) > 0) {
+						return player;
+					}
+				}
+				return -1;
 			}
 		}),
 		setAttacker: assign({
@@ -78,8 +88,7 @@ const riskMachine = setup<Context, RiskEvent>({
 			console.log('Not allowed', error);
 		},
 		startCombatMode: ({context, event}: { context: Context, event: SelectTroopsEvent }) => {
-			debugger;
-			console.log('Attacking', context.attacker, 'from', context.target, "with", event.troops, "troops");
+			console.log('Attacking', context.attacker, 'from', event.territory);
 		},
 		assignFirstPlayer: assign({
 			currentPlayer: () => {
@@ -124,9 +133,7 @@ const riskMachine = setup<Context, RiskEvent>({
 			},
 			players: ({ context }: { context: Context }) => {
 				const players = [...context.players];
-				// debugger;
 				console.log(">> players", players);
-				// players[context.currentPlayer].territories = Object.values(context.ownership).filter(({ player }) => player === context.currentPlayer).length;
 				return players;
 			}
 		}),
@@ -147,7 +154,6 @@ const riskMachine = setup<Context, RiskEvent>({
 		}),
 		assignTroopsToDeploy: assign({
 			players: ({context}: { context: Context }) => {
-				debugger;
 				const players = [...context.players];
 				players[context.currentPlayer].troopsToDeploy = countDeploymentForPlayer(context.currentPlayer, context.ownership);
 				console.log(">> players", players);
@@ -207,10 +213,22 @@ const riskMachine = setup<Context, RiskEvent>({
 					}
 				}
 
+				// Check if territory has been lost
+				const remainingAttackerTroops = ownership[context.attacker as Territory].troops;
+				const remainingTargetTroops = ownership[context.target as Territory].troops;
+				if (remainingTargetTroops === 0) {
+					ownership[context.target as Territory] = {
+						player: context.currentPlayer,
+						troops: attackerTroops
+					};
+					ownership[context.attacker as Territory].troops = remainingAttackerTroops - attackerTroops;
+				}
+
 				console.log(">> ownership", ownership);
 				return ownership;
 			}
-		})	},
+		})
+	},
 	guards: {
 		isPlayerAllowedToChooseAttacker: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
 			const territory = event.territory;
@@ -222,7 +240,9 @@ const riskMachine = setup<Context, RiskEvent>({
 		isPlayerAllowedToAttack: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
 			const attackerTerritory = context.attacker;
 			const targetTerritory = event.territory;
-			const isValid = (attackerTerritory && new Map(context.allBorders).get(attackerTerritory)?.includes(targetTerritory)) ?? false;
+			const ownership = context.ownership;
+			const currentPlayer = context.currentPlayer;
+			const isValid = (attackerTerritory && new Map(context.allBorders).get(attackerTerritory)?.includes(targetTerritory) && ownership[targetTerritory].player !== currentPlayer) ?? false;
 			console.log(">> isPlayerAllowedToAttack", isValid);
 			return isValid;
 		},
@@ -239,7 +259,7 @@ const riskMachine = setup<Context, RiskEvent>({
 			return isValid;
 		},
 		hasPlayerSufficientTroopsToAttack: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
-			const isValid = (event.troops > 0 && event.troops <= 3 && context.attacker && context.ownership[context.attacker].troops > event.troops) ?? false
+			const isValid = (event.troops > 0 && event.troops <= 3 && context.attacker && context.ownership[context.attacker].troops > event.troops && context.ownership[context.attacker].player !== context.ownership[context.target as Territory].player) ?? false
 			console.log(">> hasPlayerSufficientTroopsToAttack", isValid);
 			return isValid;
 		},
@@ -302,10 +322,10 @@ const riskMachine = setup<Context, RiskEvent>({
 			initial: 'deployment',
 			states: {
 				deployment: {
-					initial: 'selectingTerritory',
+					initial: 'selectingTerritoryOrEndTurn',
 					entry: "assignTroopsToDeploy",
 					states: {
-						selectingTerritory: {
+						selectingTerritoryOrEndTurn: {
 							entry: assign({
 								selectedTerritory: null,
 							}),
@@ -328,13 +348,14 @@ const riskMachine = setup<Context, RiskEvent>({
 								DEPLOY_TROOPS: [
 									{
 										guard: "hasPlayerSufficientTroopsToDeploy",
-										target: "selectingTerritory",
+										target: "selectingTerritoryOrEndTurn",
 										actions: ["deployTroops"],
 									},
 									{
 										actions: ['ignoreClick'],
 									},
-								]
+								],
+								BACK: "selectingTerritoryOrEndTurn"
 							}
 						}
 					}

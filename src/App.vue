@@ -7,7 +7,7 @@
           <label :for="event" class="cursor-pointer">
             <input type="radio" :id="event" v-model="selectedEvent" :value="event" class="hidden"/>
             <span :class="{'bg-slate-800 text-white': event === selectedEvent}"
-                  class="block text-lg font-bold bg-white p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">{{
+                  class="block text-lg font-bold p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">{{
                 event
               }}</span>
           </label>
@@ -21,7 +21,7 @@
                    class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800"/>
             <select v-else-if="inputType === 'territory'" v-model="selectedTerritory"
                     class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800">
-              <option v-for="{territory, player, troops} in territoriesDropdown" :key="territory" :value="territory">
+              <option v-for="({territory, player, troops}, i) in territoriesDropdown" :key="i" :value="territory">
                 {{ territory }} ({{ troops }}) {{player.name}}
               </option>
             </select>
@@ -132,9 +132,6 @@ export default {
     });
 
     const territoriesDropdown = computed(() => {
-      // switch (currentState.value.value) {
-      //
-      // }
       if (currentState.value.value["game"]) {
         const allBorders = currentState.value.context.allBorders;
         if (currentState.value.value.game["deployment"] || currentState.value.value.game["combat"] === "selectingAttackerOrEndTurn") {
@@ -144,12 +141,10 @@ export default {
         } else if (currentState.value.value.game["combat"]) {
           const attacker = currentState.value.context.attacker;
           return territories.value.filter(({territory}) => {
-            return attacker && new Map(allBorders).get(attacker)?.includes(territory);
+            return attacker && new Map(allBorders).get(attacker)?.includes(territory) && ownership.value[territory].player !== currentPlayer.value.index;
           });
         }
       }
-      console.log(currentState.value.value);
-      debugger;
       return territories.value;
     });
 

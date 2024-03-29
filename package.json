@@ -6,9 +6,11 @@
   "scripts": {
     "start": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:types":  "xstate typegen \"src/states/*.ts\""
   },
   "dependencies": {
+    "@xstate/cli": "^0.5.17",
     "@xstate/vue": "^3.1.1",
     "vue": "^3.4.21",
     "xstate": "^5.9.1"
