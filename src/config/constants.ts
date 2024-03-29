@@ -1,4 +1,4 @@
-import {Territory} from "./types.ts";
+import {Territory, Interval} from "./types.ts";
 
 export const stateKey = "risk:state";
 export const allTerritories: Territory[] = [
@@ -49,4 +49,10 @@ export const allBorders: [Territory, Territory[]][] = [
 	["eastern_australia", ["new_guinea", "western_australia"]]
 ];
 export const players = 5;
+
+export const playerColors = ['#ffbe0b', '#43aa8b', '#ff006e', '#8338ec', '#3a86ff'];
+
+export const playerNames = ["Katharina die Große", "Julius Caesar", "Napoleon Bonaparte", "Genghis Khan", "König Tamara", "Cleopatra"];
 export const initialTroopsPerPlayer = Math.floor(allTerritories.length / players) * 20;
+
+export const diceInterval: Interval = [1, 6];

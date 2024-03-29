@@ -12,3 +12,4 @@ export type Player = {
 	name?: string;
 	color?: string;
 }
+export type Interval = [number, number];

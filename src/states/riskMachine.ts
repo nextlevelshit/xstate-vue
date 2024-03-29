@@ -1,7 +1,15 @@
-import {assign, AnyEventObject, setup} from 'xstate';
+import {assign, setup} from 'xstate';
 import {Territory, TerritoryOwnership, Player} from "../config/types.ts";
-import {players, allBorders, allTerritories, initialTroopsPerPlayer} from "../config/constants.ts";
+import {
+	players,
+	allBorders,
+	allTerritories,
+	initialTroopsPerPlayer,
+	playerColors,
+	playerNames, diceInterval
+} from "../config/constants.ts";
 import {countDeploymentForPlayer} from "../util/countDeploymentForPlayer.ts";
+import {randomIntFromInterval} from "../util/randomIntFromInterval.ts";
 
 export interface Context {
 	currentPlayer: number;
@@ -12,15 +20,16 @@ export interface Context {
 	allBorders: [Territory, Territory[]][];
 	allTerritories: Territory[];
 	players: Player[];
+	error: string;
 }
 
-interface SelectTerritoryEvent extends AnyEventObject {
-	type: "TERRITORY_CLICKED";
+interface SelectTerritoryEvent {
+	type: RiskEventType.TERRITORY_CLICKED;
 	territory: Territory;
 }
 
-interface DeployTroopsEvent extends AnyEventObject {
-	type: "DEPLOY";
+interface SelectTroopsEvent {
+	type: RiskEventType.DEPLOY_TROOPS | RiskEventType.ATTACK;
 	territory?: Territory;
 	troops: number;
 }
@@ -34,10 +43,12 @@ export enum RiskEventType {
 	END_TURN = "END_TURN",
 	RESOLVE = "RESOLVE",
 	GAME_OVER = "GAME_OVER",
-	DEPLOY_TROOPS = "DEPLOY_TROOPS"
+	DEPLOY_TROOPS = "DEPLOY_TROOPS",
+	ATTACK = "ATTACK",
+	BACK = "BACK"
 }
 
-export type RiskEvent = SelectTerritoryEvent | DeployTroopsEvent | { type: RiskEventType};
+export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};
 
 export type RiskGuard<T> = {
 	context: Context;
@@ -45,22 +56,30 @@ export type RiskGuard<T> = {
 }
 
 const riskMachine = setup<Context, RiskEvent>({
-	// types: {
-	// 	context: {} as Context,
-	// 	events: {} as MachineEvent
-	// },
 	actions: {
+		incrementCurrentPlayer: assign({
+			currentPlayer: ({context}: {context: Context}) => {
+				return (context.currentPlayer + 1) % context.players.length;
+			}
+		}),
 		setAttacker: assign({
-			attacker: ({event}) => event.territory,
+			attacker: ({event}: { event: SelectTerritoryEvent}) => {
+				console.log(">> attacker", event.territory);
+				return event.territory;
+			},
 		}),
 		setTarget: assign({
-			target: ({event}) => event.territory,
+			target: ({event}: { event: SelectTerritoryEvent}) => {
+				console.log(">> target", event.territory);
+				return event.territory;
+			},
 		}),
-		ignoreClick: ({event}: { event: SelectTerritoryEvent }) => {
-			console.log('Not allowed to select territory', event.territory);
+		ignoreClick: (error: any) => {
+			console.log('Not allowed', error);
 		},
-		startCombatMode: ({context}: { context: Context }) => {
-			console.log('Attacking', context.attacker, 'from', context.target);
+		startCombatMode: ({context, event}: { context: Context, event: SelectTroopsEvent }) => {
+			debugger;
+			console.log('Attacking', context.attacker, 'from', context.target, "with", event.troops, "troops");
 		},
 		assignFirstPlayer: assign({
 			currentPlayer: () => {
@@ -112,17 +131,23 @@ const riskMachine = setup<Context, RiskEvent>({
 			}
 		}),
 		deployTroops: assign({
-			ownership: ({context, event}: { context: Context, event: DeployTroopsEvent }) => {
-				debugger;
-				const {territory, troops} = event;
+			ownership: ({context, event}: { context: Context, event: SelectTroopsEvent }) => {
+				const territory = event?.territory ?? context.selectedTerritory;
 				const ownership = {...context.ownership};
-				ownership[territory as Territory].troops += troops;
+				ownership[territory as Territory].troops += event.troops;
 				console.log(">> ownership", ownership);
 				return ownership;
 			},
+			players: ({context, event}: { context: Context, event: SelectTroopsEvent}) => {
+				const { currentPlayer, players } = context;
+				const troops = players[currentPlayer].troopsToDeploy;
+				players[currentPlayer].troopsToDeploy = troops - event.troops;
+				return players;
+			}
 		}),
 		assignTroopsToDeploy: assign({
 			players: ({context}: { context: Context }) => {
+				debugger;
 				const players = [...context.players];
 				players[context.currentPlayer].troopsToDeploy = countDeploymentForPlayer(context.currentPlayer, context.ownership);
 				console.log(">> players", players);
@@ -154,25 +179,52 @@ const riskMachine = setup<Context, RiskEvent>({
 				console.log(">> ownership", ownership);
 				return ownership;
 			}
-		})
-	},
+		}),
+		rollTheDice: assign({
+			ownership: ({context, event}: { context: Context, event: SelectTroopsEvent}) => {
+				const attackerTroops = event.troops;
+				const defenderTroops = Math.min(event.troops, context.ownership[context.target as Territory].troops);
+				const ownership = {...context.ownership};
+
+				// Simulate dice roll for attacker and defender
+				const attackerDice = Array.from({length: Math.min(attackerTroops, 3)}, () => randomIntFromInterval(diceInterval));
+				const defenderDice = Array.from({length: Math.min(defenderTroops, 2)}, () => randomIntFromInterval(diceInterval));
+
+				// Sort dice rolls in descending order
+				attackerDice.sort((a, b) => b - a);
+				defenderDice.sort((a, b) => b - a);
+
+				// Determine the outcome of the battle
+				for (let i = 0; i < Math.min(attackerDice.length, defenderDice.length); i++) {
+					if (attackerDice[i] > defenderDice[i]) {
+						// Attacker wins, decrease defender's troops
+						console.log("Attacker wins:", context.attacker, attackerDice[i], defenderDice[i]);
+						ownership[context.target as Territory].troops--;
+					} else {
+						// Defender wins or it's a tie, decrease attacker's troops
+						console.log("Defender wins:", context.target, attackerDice[i], defenderDice[i]);
+						ownership[context.attacker as Territory].troops--;
+					}
+				}
+
+				console.log(">> ownership", ownership);
+				return ownership;
+			}
+		})	},
 	guards: {
 		isPlayerAllowedToChooseAttacker: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
 			const territory = event.territory;
 			const owner = context.ownership[territory];
-			return owner && owner.player === context.currentPlayer;
+			const isValid = owner && owner.player === context.currentPlayer && owner.troops > 2;
+			console.log(">> isPlayerAllowedToChooseAttacker", isValid);
+			return isValid;
 		},
 		isPlayerAllowedToAttack: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
 			const attackerTerritory = context.attacker;
 			const targetTerritory = event.territory;
-
-			// Check if the attacker territory can be mapped inside allBorders to the target country
-			return context.allBorders.some(([territory, adjacentTerritories]) => {
-				if (territory === attackerTerritory) {
-					return adjacentTerritories.includes(targetTerritory);
-				}
-				return false;
-			});
+			const isValid = (attackerTerritory && new Map(context.allBorders).get(attackerTerritory)?.includes(targetTerritory)) ?? false;
+			console.log(">> isPlayerAllowedToAttack", isValid);
+			return isValid;
 		},
 		isPlayerAllowedToDeploy: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
 			const territory = event?.territory;
@@ -181,22 +233,21 @@ const riskMachine = setup<Context, RiskEvent>({
 			console.log(">> isPlayerAllowedToDeploy", isValid);
 			return isValid;
 		},
-		hasPlayerSufficientTroops: (context: Context, event: DeployTroopsEvent) => {
-			const {selectedTerritory, ownership} = context;
-			const {territory, troops} = event;
-			if (!territory || !selectedTerritory) {
-				throw new Error("No territory selected");
-			}
-			debugger;
-			const owner = ownership[(territory || selectedTerritory) as Territory];
-			const isValid = owner && owner.troops >= troops;
-			console.log(">> hasPlayerSufficientTroops", isValid);
+		hasPlayerSufficientTroopsToDeploy: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
+			const isValid = context.players[context.currentPlayer].troopsToDeploy >= event.troops;
+			console.log(">> hasPlayerSufficientTroopsToDeploy", isValid);
+			return isValid;
+		},
+		hasPlayerSufficientTroopsToAttack: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
+			const isValid = (event.troops > 0 && event.troops <= 3 && context.attacker && context.ownership[context.attacker].troops > event.troops) ?? false
+			console.log(">> hasPlayerSufficientTroopsToAttack", isValid);
 			return isValid;
 		},
 	},
 }).createMachine({
 	id: 'risk',
 	context: {
+		error: "",
 		currentPlayer: -1,
 		ownership: {} as TerritoryOwnership,
 		attacker: null,
@@ -204,7 +255,11 @@ const riskMachine = setup<Context, RiskEvent>({
 		selectedTerritory: null,
 		allBorders,
 		allTerritories,
-		players: Array.from({length: players}, () => ({troopsToDeploy: 0})),
+		players: Array.from({length: players}, (_,i) => ({
+			troopsToDeploy: 0,
+			color: playerColors[i],
+			name: playerNames[i]
+		})),
 	},
 	initial: 'setup',
 	states: {
@@ -245,12 +300,15 @@ const riskMachine = setup<Context, RiskEvent>({
 		},
 		game: {
 			initial: 'deployment',
-			entry: "assignTroopsToDeploy",
 			states: {
 				deployment: {
 					initial: 'selectingTerritory',
+					entry: "assignTroopsToDeploy",
 					states: {
 						selectingTerritory: {
+							entry: assign({
+								selectedTerritory: null,
+							}),
 							on: {
 								TERRITORY_CLICKED: [
 									{
@@ -267,12 +325,15 @@ const riskMachine = setup<Context, RiskEvent>({
 						},
 						deployingTroops: {
 							on: {
-								DEPLOY: [
+								DEPLOY_TROOPS: [
 									{
-										guard: "hasPlayerSufficientTroops",
+										guard: "hasPlayerSufficientTroopsToDeploy",
 										target: "selectingTerritory",
 										actions: ["deployTroops"],
-									}
+									},
+									{
+										actions: ['ignoreClick'],
+									},
 								]
 							}
 						}
@@ -282,13 +343,18 @@ const riskMachine = setup<Context, RiskEvent>({
 					initial: 'selectingAttackerOrEndTurn',
 					states: {
 						selectingAttackerOrEndTurn: {
+							entry: assign({
+								attacker: null,
+								target: null
+							}),
 							on: {
 								TERRITORY_CLICKED: [
 									{
 										guard: 'isPlayerAllowedToChooseAttacker',
 										actions: ['setAttacker'],
 										target: 'selectingTarget',
-									}, {
+									},
+									{
 										actions: ['ignoreClick'],
 									},
 								],
@@ -296,24 +362,52 @@ const riskMachine = setup<Context, RiskEvent>({
 							},
 						},
 						selectingTarget: {
+							entry: assign({
+								target: null
+							}),
 							on: {
-								TERRITORY_CLICKED: [{
-									guard: 'isPlayerAllowedToAttack',
-									actions: ['setTarget', 'startCombatMode'],
-									target: 'selectingAttackerOrEndTurn',
-								}, {
-									target: 'selectingAttackerOrEndTurn',
-								},],
+								TERRITORY_CLICKED: [
+									{
+										guard: 'isPlayerAllowedToAttack',
+										actions: ['setTarget', 'startCombatMode'],
+										target: 'combat',
+									},
+									{
+										actions: ["ignoreClick"]
+									},
+								],
+								BACK: {
+									target: "selectingAttackerOrEndTurn"
+								},
 							},
 						},
 						combat: {
-							// Define combat state here
+							on: {
+								ATTACK: [
+									{
+										guard: "hasPlayerSufficientTroopsToAttack",
+										actions: ["rollTheDice"],
+										target: "combat"
+									}
+								],
+								BACK: {
+									target: "selectingTarget"
+								},
+								END_TURN: {
+									target: "#risk.game.consolidation"
+								}
+							}
 						},
 					}
 				},
 				consolidation: {
+					description: "Player can consolidate across connected territories once",
 					on: {
-						END_TURN: '#risk.endGame.victoryConditionCheck',
+
+						END_TURN: {
+							actions: ["incrementCurrentPlayer"],
+							target: "#risk.game.deployment"
+						}
 					},
 				},
 			},
