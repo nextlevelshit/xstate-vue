@@ -24,7 +24,7 @@ export interface Context {
 }
 
 interface SelectTerritoryEvent {
-	type: RiskEventType.TERRITORY_CLICKED;
+	type: RiskEventType.SELECT_TERRITORY;
 	territory: Territory;
 }
 
@@ -35,17 +35,18 @@ interface SelectTroopsEvent {
 }
 
 export enum RiskEventType {
-	ASSIGN_FIRST_PLAYER = "ASSIGN_FIRST_PLAYER",
-	ASSIGN_TERRITORIES = "ASSIGN_TERRITORIES",
-	ASSIGN_TROOPS = "ASSIGN_TROOPS",
-	START_GAME = "START_GAME",
-	TERRITORY_CLICKED = "TERRITORY_CLICKED",
+	// ASSIGN_FIRST_PLAYER = "ASSIGN_FIRST_PLAYER",
+	// ASSIGN_TERRITORIES = "ASSIGN_TERRITORIES",
+	// ASSIGN_TROOPS = "ASSIGN_TROOPS",
+	// START_GAME = "START_GAME",
+	SELECT_TERRITORY = "SELECT_TERRITORY",
 	END_TURN = "END_TURN",
 	RESOLVE = "RESOLVE",
 	GAME_OVER = "GAME_OVER",
 	DEPLOY_TROOPS = "DEPLOY_TROOPS",
 	ATTACK = "ATTACK",
-	BACK = "BACK"
+	BACK = "BACK",
+	CONTINUE = "CONTINUE"
 }
 
 export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};
@@ -288,7 +289,7 @@ const riskMachine = setup<Context, RiskEvent>({
 			states: {
 				firstPlayer: {
 					on: {
-						ASSIGN_FIRST_PLAYER: {
+						CONTINUE: {
 							target: 'territoryAssignment',
 							actions: ['assignFirstPlayer'],
 						},
@@ -296,7 +297,7 @@ const riskMachine = setup<Context, RiskEvent>({
 				},
 				territoryAssignment: {
 					on: {
-						ASSIGN_TERRITORIES: {
+						CONTINUE: {
 							target: 'initialDeployment',
 							actions: ['assignTerritoriesToPlayers'],
 						},
@@ -305,7 +306,7 @@ const riskMachine = setup<Context, RiskEvent>({
 				},
 				initialDeployment: {
 					on: {
-						ASSIGN_TROOPS: {
+						CONTINUE: {
 							target: 'preparationComplete',
 							actions: ['assignTroopsToTerritories']
 						}
@@ -313,7 +314,7 @@ const riskMachine = setup<Context, RiskEvent>({
 				},
 				preparationComplete: {
 					on: {
-						START_GAME: '#risk.game',
+						CONTINUE: '#risk.game',
 					},
 				},
 			},
@@ -330,7 +331,7 @@ const riskMachine = setup<Context, RiskEvent>({
 								selectedTerritory: null,
 							}),
 							on: {
-								TERRITORY_CLICKED: [
+								SELECT_TERRITORY: [
 									{
 										guard: 'isPlayerAllowedToDeploy',
 										target: "deployingTroops",
@@ -369,7 +370,7 @@ const riskMachine = setup<Context, RiskEvent>({
 								target: null
 							}),
 							on: {
-								TERRITORY_CLICKED: [
+								SELECT_TERRITORY: [
 									{
 										guard: 'isPlayerAllowedToChooseAttacker',
 										actions: ['setAttacker'],
@@ -387,7 +388,7 @@ const riskMachine = setup<Context, RiskEvent>({
 								target: null
 							}),
 							on: {
-								TERRITORY_CLICKED: [
+								SELECT_TERRITORY: [
 									{
 										guard: 'isPlayerAllowedToAttack',
 										actions: ['setTarget', 'startCombatMode'],
@@ -424,7 +425,6 @@ const riskMachine = setup<Context, RiskEvent>({
 				consolidation: {
 					description: "Player can consolidate across connected territories once",
 					on: {
-
 						END_TURN: {
 							actions: ["incrementCurrentPlayer"],
 							target: "#risk.game.deployment"
