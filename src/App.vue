@@ -39,34 +39,35 @@
                 </select>
               </template>
             </template>
-            <button @click="sendEvent(selectedEvent)"
+            <button @click="selectedEvent && sendEvent(selectedEvent)"
                     class="mt-4 text-white text-xl font-bold bg-slate-800 p-3 py-7 w-full rounded"
-                    :style="`background-color: ${currentPlayer.color}`">SUBMIT
+                    :style="`background-color: ${currentPlayer.color}; text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2)`">{{currentPlayer.name}} ({{currentPlayer.troops}})
             </button>
             <button @click="reset()"
                     class="mt-4 text-white text-lg font-bold bg-slate-400 p-3 w-full rounded">RESET
             </button>
           </div>
           <details class="mb-4" open>
-            <summary class="cursor-pointer text-xl font-semibold mb-2">State:</summary>
+            <summary class="cursor-pointer text-xl font-semibold mb-2">Current State:</summary>
             <pre> {{ JSON.stringify(currentState.value, null, 2) }}</pre>
           </details>
-          <details class="mb-4" open>
-            <summary class="cursor-pointer text-xl font-semibold mb-2">Current Player:</summary>
-            <pre> {{ JSON.stringify(currentPlayer, null, 2) }}</pre>
-          </details>
+
           <details class="mb-4">
             <summary class="cursor-pointer text-xl font-semibold mb-2">Combat:</summary>
             <div class="flex gap-2">
               <div class="w-1/2">
-                <p class="font-semibold">{{ currentState.context.attacker }}</p>
-                <pre>{{ ownership[currentState.context.attacker as Territory] }}</pre>
+                <p class="font-semibold">{{ attacker }}</p>
+                <pre>{{ ownership[attacker] }}</pre>
               </div>
               <div class="w-1/2">
-                <p class="font-semibold">{{ currentState.context.target }}</p>
-                <pre>{{ ownership[currentState.context.target as Territory] }}</pre>
+                <p class="font-semibold">{{ target }}</p>
+                <pre>{{ ownership[target] }}</pre>
               </div>
             </div>
+          </details>
+          <details class="mb-4">
+            <summary class="cursor-pointer text-xl font-semibold mb-2">Current Player:</summary>
+            <pre> {{ JSON.stringify(currentPlayer, null, 2) }}</pre>
           </details>
           <details class="mb-4">
             <summary class="cursor-pointer text-xl font-semibold mb-2">Ownership:</summary>
@@ -78,6 +79,10 @@
           </details>
           <details class="mb-4">
             <summary class="cursor-pointer text-xl font-semibold mb-2">Territories:</summary>
+            <pre> {{ JSON.stringify(territories, null, 2) }}</pre>
+          </details>
+          <details class="mb-4">
+            <summary class="cursor-pointer text-xl font-semibold mb-2">Full State:</summary>
             <pre> {{ JSON.stringify(territories, null, 2) }}</pre>
           </details>
         </div>
@@ -93,12 +98,17 @@
 import {ref, computed} from 'vue';
 import {useMachine} from '@xstate/vue';
 import riskMachine, {RiskEventType} from './states/riskMachine';
-import type {Territory} from './config/types';
+import type {Territory, Player} from './config/types';
 import {stateKey} from "./config/constants.ts";
 import WorldMap from "./components/WorldMap.vue";
 
 export default {
   name: 'App',
+  computed: {
+    Territory() {
+      return Territory
+    }
+  },
   components: {WorldMap},
   methods: {
     handleTerritoryClick(territory: Territory) {
@@ -119,8 +129,10 @@ export default {
     });
 
     const currentState = computed(() => snapshot.value);
+    const attacker = computed<Territory>(() => currentState.value.context.attacker as Territory);
+    const target = computed<Territory>(() => currentState.value.context.target as Territory);
 
-    const players = computed(() => {
+    const players = computed<Array<Player & { index: number}>>(() => {
       const {ownership, players} = currentState.value.context;
 
       return players.map((player, index) => {
@@ -233,7 +245,9 @@ export default {
       eventInputs,
       reset,
       send,
-      eventButtons
+      eventButtons,
+      attacker,
+      target
     };
   }
 };

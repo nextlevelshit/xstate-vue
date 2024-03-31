@@ -47,14 +47,22 @@ export default {
 
         props.territories.forEach(({territory, troops, player}) => {
           const territoryElement = d3.select(`#${territory}`);
-          player.color && territoryElement.style('fill', player.color);
+          const playerColor = player.color || "black";
+          player.color && territoryElement.style('fill', playerColor);
           const bbox = territoryElement.node()?.getBBox();
           const middleX = bbox.x + bbox.width / 2;
           const middleY = bbox.y + bbox.height / 2;
+          svg.select("svg #territories").append("circle")
+              .attr('cx', middleX)
+              .attr('cy', middleY)
+              .attr('r', 16)
+              .attr("class", "troopsBackground")
+              .attr("stroke", "black");
           svg.select("svg #territories").append('text') // Append SVG text element
               .attr('x', middleX)
               .attr('y', middleY)
-              .attr('fill', player.color || "black")
+              .attr('fill', playerColor)
+              .attr("dominant-baseline", "central")
               .attr('class', 'troops')
               .text(troops); // Set the text content
           territoryElement.on('click', () => {
@@ -105,30 +113,34 @@ svg #territories path {
   stroke-width: 0.75;
   stroke: #000;
   visibility: visible;
+  mix-blend-mode: multiply;
 }
 
 svg #territories path:hover {
-  fill-opacity: 0.3 !important;
+  fill-opacity: 0.5 !important;
 }
 
 svg #continents path {
-  opacity: 0 !important;
-  display: none;
+  stroke: black;
+  stroke-width: 8 !important;
+  stroke-opacity: 0.2 !important;
+  fill: white !important;
 }
 
 .troops {
-  font-weight: 900;
-  font-family: sans-serif;
-  stroke: black;
-  stroke-opacity: 0.4;
-  stroke-width: 1.4;
-  font-size: 32px;
+  font-weight: 700;
+  font-size: 16px;
   text-anchor: middle;
-  dominant-baseline: central;
+  font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
 }
 
-.troops:before {
-  content: "";
+.troopsBackground {
+  fill: black;
+  stroke-width: 4;
+  stroke-opacity: 0.2;
+  fill-opacity: 0.7;
+  mix-blend-mode: multiply;
 }
+
 
 </style>
