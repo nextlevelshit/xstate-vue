@@ -104,11 +104,6 @@ import WorldMap from "./components/WorldMap.vue";
 
 export default {
   name: 'App',
-  computed: {
-    Territory() {
-      return Territory
-    }
-  },
   components: {WorldMap},
   methods: {
     handleTerritoryClick(territory: Territory) {
