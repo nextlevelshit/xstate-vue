@@ -124,8 +124,8 @@ export default {
     });
 
     const currentState = computed(() => snapshot.value);
-    const attacker = computed<Territory>(() => currentState.value.context.attacker as Territory);
-    const target = computed<Territory>(() => currentState.value.context.target as Territory);
+    const attacker = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
+    const target = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
 
     const players = computed<Array<Player & { index: number}>>(() => {
       const {ownership, players} = currentState.value.context;
@@ -176,7 +176,7 @@ export default {
             return ownership.value[territory].player === currentPlayer.value.index;
           });
         } else if (currentState.value.value.game["combat"]) {
-          const attacker = currentState.value.context.attacker;
+          const attacker = currentState.value.context.fromTerritory;
           return territories.value.filter(({territory}) => {
             return attacker && new Map(allBorders).get(attacker)?.includes(territory) && ownership.value[territory].player !== currentPlayer.value.index;
           });

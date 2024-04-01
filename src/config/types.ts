@@ -45,10 +45,9 @@ export type Interval = [number, number];
 export interface Context {
 	currentPlayer: number;
 	ownership: TerritoryOwnership;
-	selectedTerritory: Territory | null;
 	potentialTargetTerritories: Territory[];
-	attacker: Territory | null;
-	target: Territory | null;
+	fromTerritory: Territory | null;
+	toTerritory: Territory | null;
 	allBorders: [Territory, Territory[]][];
 	allTerritories: Territory[];
 	players: Player[];

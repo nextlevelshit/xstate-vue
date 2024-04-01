@@ -1,7 +1,7 @@
 import {RiskGuard, SelectTerritoryEvent} from "../config/types.ts";
 
 export const isPlayerAllowedToAttack = ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
-	const attackerTerritory = context.attacker;
+	const attackerTerritory = context.fromTerritory;
 	const targetTerritory = event.territory;
 	const ownership = context.ownership;
 	const currentPlayer = context.currentPlayer;
