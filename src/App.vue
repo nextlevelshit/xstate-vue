@@ -192,14 +192,12 @@ export default {
     ];
 
     const eventInputs: { [key in RiskEventType]?: string[] } = {
-      [RiskEventType.SELECT_TERRITORY]: ['territory'],
-      [RiskEventType.DEPLOY_TROOPS]: ['troops'],
-      [RiskEventType.ATTACK]: ['troops'],
+      [RiskEventType.MOVE]: ['troops'],
     };
 
     const events = Object.keys(eventInputs) as RiskEventType[];
 
-    const selectedEvent = ref<RiskEventType | null>();
+    const selectedEvent = ref<RiskEventType | null>(RiskEventType.MOVE);
     const input = ref("1");
     const selectedTerritory = ref<Territory | null>(null);
     const sendEvent = (event: RiskEventType) => {
@@ -212,9 +210,7 @@ export default {
       }
       console.log("<<", eventData);
       send(eventData);
-      if (event !== RiskEventType.ATTACK) {
-        selectedEvent.value = null;
-        selectedTerritory.value = null;
+      if (event !== RiskEventType.MOVE) {
         input.value = "1";
       }
       localStorage.setItem(stateKey, JSON.stringify(currentState.value));

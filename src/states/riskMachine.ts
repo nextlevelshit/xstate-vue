@@ -31,7 +31,7 @@ interface SelectTerritoryEvent {
 }
 
 interface SelectTroopsEvent {
-	type: RiskEventType.DEPLOY_TROOPS | RiskEventType.ATTACK;
+	type: RiskEventType.MOVE;
 	territory?: Territory;
 	troops: number;
 }
@@ -45,8 +45,7 @@ export enum RiskEventType {
 	END_TURN = "END_TURN",
 	RESOLVE = "RESOLVE",
 	GAME_OVER = "GAME_OVER",
-	DEPLOY_TROOPS = "DEPLOY_TROOPS",
-	ATTACK = "ATTACK",
+	MOVE = "MOVE",
 	BACK = "BACK",
 	CONTINUE = "CONTINUE"
 }
@@ -397,7 +396,7 @@ const riskMachine = setup<Context, RiskEvent>({
 						},
 						deployingTroops: {
 							on: {
-								DEPLOY_TROOPS: [
+								MOVE: [
 									{
 										guard: "hasPlayerSufficientTroopsToDeploy",
 										target: "selectingTerritoryOrEndTurn",
@@ -470,7 +469,7 @@ const riskMachine = setup<Context, RiskEvent>({
 						},
 						combat: {
 							on: {
-								ATTACK: [
+								MOVE: [
 									{
 										guard: "hasPlayerSufficientTroopsToAttack",
 										actions: ["rollTheDice"],
@@ -537,7 +536,7 @@ const riskMachine = setup<Context, RiskEvent>({
 						},
 						reinforcingTroops: {
 							on: {
-								DEPLOY_TROOPS: {
+								MOVE: {
 									guard: "hasPlayerSufficientTroopsToReinforce",
 									actions: ["reinforceTroops", "incrementCurrentPlayer"],
 									target: "#risk.game.deployment"

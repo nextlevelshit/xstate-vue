@@ -56,8 +56,9 @@ export default {
               .attr('cx', middleX)
               .attr('cy', middleY)
               .attr('r', 16)
+              .attr("fill", playerColor)
               .attr("class", "troopsBackground")
-              .attr("stroke", "black");
+              .attr("stroke", "white");
           svg.select("svg #territories").append('text') // Append SVG text element
               .attr('x', middleX)
               .attr('y', middleY)
@@ -117,7 +118,7 @@ svg #territories path {
 }
 
 svg #territories path:hover {
-  fill-opacity: 0.5 !important;
+  fill-opacity: 0.8 !important;
 }
 
 svg #continents path {
@@ -136,8 +137,8 @@ svg #continents path {
 
 .troopsBackground {
   fill: black;
-  stroke-width: 4;
-  stroke-opacity: 0.2;
+  stroke-width: 3;
+  stroke-opacity: 0.4;
   fill-opacity: 0.7;
   mix-blend-mode: multiply;
 }
