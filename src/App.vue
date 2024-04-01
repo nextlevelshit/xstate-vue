@@ -97,8 +97,8 @@
 <script lang="ts">
 import {ref, computed} from 'vue';
 import {useMachine} from '@xstate/vue';
-import riskMachine, {RiskEventType} from './states/riskMachine';
-import type {Territory, Player} from './config/types';
+import riskMachine from './states/riskMachine';
+import {Territory, Player, RiskEventType} from './config/types';
 import {stateKey} from "./config/constants.ts";
 import WorldMap from "./components/WorldMap.vue";
 

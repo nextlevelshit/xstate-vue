@@ -41,3 +41,44 @@ export type Player = {
  * The interval type
  */
 export type Interval = [number, number];
+
+export interface Context {
+	currentPlayer: number;
+	ownership: TerritoryOwnership;
+	selectedTerritory: Territory | null;
+	potentialTargetTerritories: Territory[];
+	attacker: Territory | null;
+	target: Territory | null;
+	allBorders: [Territory, Territory[]][];
+	allTerritories: Territory[];
+	players: Player[];
+	error: string;
+}
+
+export interface SelectTerritoryEvent {
+	type: RiskEventType.SELECT_TERRITORY;
+	territory: Territory;
+}
+
+export interface SelectTroopsEvent {
+	type: RiskEventType.MOVE;
+	territory?: Territory;
+	troops: number;
+}
+
+export enum RiskEventType {
+	SELECT_TERRITORY = "SELECT_TERRITORY",
+	END_TURN = "END_TURN",
+	RESOLVE = "RESOLVE",
+	GAME_OVER = "GAME_OVER",
+	MOVE = "MOVE",
+	BACK = "BACK",
+	CONTINUE = "CONTINUE"
+}
+
+export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | { type: RiskEventType };
+
+export type RiskGuard<T> = {
+	context: Context;
+	event: T;
+}

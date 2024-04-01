@@ -1,61 +1,32 @@
 import {assign, setup} from 'xstate';
-import {Territory, TerritoryOwnership, Player} from "../config/types.ts";
+import {
+	Territory,
+	TerritoryOwnership,
+	RiskGuard,
+	RiskEvent,
+	SelectTroopsEvent,
+	SelectTerritoryEvent,
+	Context
+} from "../config/types.ts";
 import {
 	players,
 	allBorders,
 	allTerritories,
 	initialTroopsPerPlayer,
 	playerColors,
-	playerNames, diceInterval
+	playerNames,
+	diceInterval
 } from "../config/constants.ts";
 import {countDeploymentForPlayer} from "../util/countDeploymentForPlayer.ts";
 import {randomIntFromInterval} from "../util/randomIntFromInterval.ts";
 import {getConnectedTerritories} from "../util/getConnectedTerritories.ts";
-
-export interface Context {
-	currentPlayer: number;
-	ownership: TerritoryOwnership;
-	selectedTerritory: Territory | null;
-	potentialTargetTerritories: Territory[];
-	attacker: Territory | null;
-	target: Territory | null;
-	allBorders: [Territory, Territory[]][];
-	allTerritories: Territory[];
-	players: Player[];
-	error: string;
-}
-
-interface SelectTerritoryEvent {
-	type: RiskEventType.SELECT_TERRITORY;
-	territory: Territory;
-}
-
-interface SelectTroopsEvent {
-	type: RiskEventType.MOVE;
-	territory?: Territory;
-	troops: number;
-}
-
-export enum RiskEventType {
-	// ASSIGN_FIRST_PLAYER = "ASSIGN_FIRST_PLAYER",
-	// ASSIGN_TERRITORIES = "ASSIGN_TERRITORIES",
-	// ASSIGN_TROOPS = "ASSIGN_TROOPS",
-	// START_GAME = "START_GAME",
-	SELECT_TERRITORY = "SELECT_TERRITORY",
-	END_TURN = "END_TURN",
-	RESOLVE = "RESOLVE",
-	GAME_OVER = "GAME_OVER",
-	MOVE = "MOVE",
-	BACK = "BACK",
-	CONTINUE = "CONTINUE"
-}
-
-export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};
-
-export type RiskGuard<T> = {
-	context: Context;
-	event: T;
-}
+import {isPlayerAllowedToAttack} from "../guards/isPlayerAllowedToAttack.ts";
+import {isPlayerAllowedToChooseAttacker} from "../guards/isPlayerAllowedToChooseAttacker.ts";
+import {hasPlayerSufficientTroopsToReinforce} from "../guards/hasPlayerSufficientTroopsToReinforce.ts";
+import {isPlayerAllowedToDeploy} from "../guards/isPlayerAllowedToDeploy.ts";
+import {hasPlayerSufficientTroopsToDeploy} from "../guards/hasPlayerSufficientTroopsToDeploy.ts";
+import {hasPlayerSufficientTroopsToAttack} from "../guards/hasPlayerSufficientTroopsToAttack.ts";
+import {isTerritoryConnected} from "../guards/isTerritoryConnected.ts";
 
 const riskMachine = setup<Context, RiskEvent>({
 	actions: {
@@ -271,49 +242,13 @@ const riskMachine = setup<Context, RiskEvent>({
 		}),
 	},
 	guards: {
-		isPlayerAllowedToChooseAttacker: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
-			const territory = event.territory;
-			const owner = context.ownership[territory];
-			const isValid = owner && owner.player === context.currentPlayer && owner.troops >= 2;
-			console.log(">> isPlayerAllowedToChooseAttacker", isValid);
-			return isValid;
-		},
-		isPlayerAllowedToAttack: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
-			const attackerTerritory = context.attacker;
-			const targetTerritory = event.territory;
-			const ownership = context.ownership;
-			const currentPlayer = context.currentPlayer;
-			const isValid = (attackerTerritory && new Map(context.allBorders).get(attackerTerritory)?.includes(targetTerritory) && ownership[targetTerritory].player !== currentPlayer) ?? false;
-			console.log(">> isPlayerAllowedToAttack", isValid);
-			return isValid;
-		},
-		isPlayerAllowedToDeploy: ({context, event}: RiskGuard<SelectTerritoryEvent>) => {
-			const territory = event?.territory;
-			const owner = context.ownership[territory];
-			const isValid = (owner && owner.player === context.currentPlayer) ?? false;
-			console.log(">> isPlayerAllowedToDeploy", isValid);
-			return isValid;
-		},
-		hasPlayerSufficientTroopsToDeploy: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
-			const isValid = context.players[context.currentPlayer].troopsToDeploy >= event.troops;
-			console.log(">> hasPlayerSufficientTroopsToDeploy", isValid);
-			return isValid;
-		},
-		hasPlayerSufficientTroopsToAttack: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
-			const isValid = (event.troops > 0 && event.troops <= 3 && context.attacker && context.ownership[context.attacker].troops > event.troops && context.ownership[context.attacker].player !== context.ownership[context.target as Territory].player) ?? false
-			console.log(">> hasPlayerSufficientTroopsToAttack", isValid);
-			return isValid;
-		},
-		isTerritoryConnected: ({context, event} : { context: Context, event: SelectTerritoryEvent}) => {
-			const isValid = event.territory && context.potentialTargetTerritories.includes(event.territory);
-			console.log(">> isTerritoryConnected", isValid);
-			return isValid;
-		},
-		hasPlayerSufficientTroopsToReinforce: ({context, event}: RiskGuard<SelectTroopsEvent>) => {
-			const isValid = context.selectedTerritory && event.troops > 0 && context.ownership[context.selectedTerritory].troops > event.troops;
-			console.log(">> hasPlayerSufficientTroopsToReinforce", isValid);
-			return isValid;
-		}
+		isPlayerAllowedToChooseAttacker,
+		isPlayerAllowedToAttack,
+		isPlayerAllowedToDeploy,
+		hasPlayerSufficientTroopsToDeploy,
+		hasPlayerSufficientTroopsToAttack,
+		isTerritoryConnected,
+		hasPlayerSufficientTroopsToReinforce
 	},
 }).createMachine({
 	id: 'risk',
