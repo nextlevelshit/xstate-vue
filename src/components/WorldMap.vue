@@ -62,7 +62,8 @@ export default {
           svg.select("svg #territories").append('text') // Append SVG text element
               .attr('x', middleX)
               .attr('y', middleY)
-              .attr('fill', playerColor)
+              .attr('fill', "white")
+              // .attr('fill', playerColor)
               .attr("dominant-baseline", "central")
               .attr('class', 'troops')
               .text(troops); // Set the text content

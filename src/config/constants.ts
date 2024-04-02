@@ -10,7 +10,7 @@ export const allBorders: [Territory, Territory[]][] = [
 	// ["ontario", ["alberta", "northwest_territory", "greenland", "greenland"]],
 
 	["alaska", ["northwest_territory", "kamchatka", "alberta"]],
-	["northwest_territory", ["alaska", "alberta", "greenland"]],
+	["northwest_territory", ["alaska", "alberta", "greenland", "ontario"]],
 	["greenland", ["northwest_territory", "quebec", "ontario", "iceland"]],
 	["alberta", ["northwest_territory", "ontario", "western_united_states", "alaska"]],
 	["ontario", ["alberta", "northwest_territory", "western_united_states", "eastern_united_states", "quebec", "greenland"]],
@@ -25,7 +25,7 @@ export const allBorders: [Territory, Territory[]][] = [
 	["iceland", ["greenland", "scandinavia", "great_britain"]],
 	["scandinavia", ["iceland", "ukraine", "great_britain", "northern_europe"]],
 	["ukraine", ["scandinavia", "northern_europe", "southern_europe", "ural", "afghanistan", "middle_east"]],
-	["great_britain", ["iceland", "scandinavia", "ukraine", "northern_europe", "southern_europe"]],
+	["great_britain", ["iceland", "scandinavia", "western_europe", "northern_europe", "southern_europe"]],
 	["northern_europe", ["great_britain", "ukraine", "southern_europe", "western_europe", "scandinavia"]],
 	["western_europe", ["northern_europe", "southern_europe", "north_africa", "great_britain"]],
 	["southern_europe", ["western_europe", "northern_europe", "ukraine", "middle_east", "egypt", "north_africa"]],
@@ -53,7 +53,7 @@ export const allBorders: [Territory, Territory[]][] = [
 	["eastern_australia", ["new_guinea", "western_australia"]]
 ];
 export const allTerritories = Object.keys(Object.fromEntries(allBorders)) as Territory[]
-export const players = 6;
+export const players = 5;
 
 export const playerColors = ['#ffbe0b', '#43aa8b', '#ff006e', '#8338ec', '#3a86ff', '#fb5607', '#BADA55'];
 

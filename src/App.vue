@@ -5,48 +5,32 @@
       <div class="w-1/4">
         <div class="p-8 bg-white shadow-md rounded-lg">
           <h1 class="text-2xl font-bold mb-4">Risk Game State Machine Monitor</h1>
-          <div class="flex flex-col gap-2 mb-4">
+          <div class="flex flex-col gap-4 mb-4">
             <div class="flex gap-2 justify-between">
-              <template v-for="event in eventButtons" :key="event">
-                  <button @click="sendEvent(event)" :for="event"
-                          class="block text-lg font-bold p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">{{
-                      event
-                    }}</button>
+              <template v-for="event in nextBasicEvents" :key="event">
+                  <button @click="sendEvent(event)" class="block text-lg font-bold p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">
+                    {{event}}
+                  </button>
               </template>
             </div>
 
-            <template v-for="(event) in Object.keys(eventInputs)" :key="event">
-              <label :for="event" class="cursor-pointer">
-                <input type="radio" :id="event" v-model="selectedEvent" :value="event" class="hidden"/>
-                <span :class="{'bg-slate-800 text-white': event === selectedEvent}"
-                      class="block text-lg font-bold p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">{{
-                    event
-                  }}</span>
-              </label>
-            </template>
-          </div>
-          <div class="flex flex-col gap-2 mb-4">
-            <template v-if="eventInputs[selectedEvent]">
-              <template v-for="inputType in eventInputs[selectedEvent]">
-                <h2 class="text-xl font-semibold my-2">Select {{ inputType }}:</h2>
-                <input v-if="inputType === 'troops'" v-model="input" type="number" placeholder=""
-                       class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800"/>
-                <select v-else-if="inputType === 'territory'" v-model="selectedTerritory"
-                        class="text-lg font-bold bg-white p-3 w-full rounded border-2 border-slate-800">
-                  <option v-for="({territory, player, troops}, i) in territoriesDropdown" :key="i" :value="territory">
-                    {{ territory }} ({{ troops }}) {{player.name}}
-                  </option>
-                </select>
-              </template>
-            </template>
-            <button @click="selectedEvent && sendEvent(selectedEvent)"
-                    class="mt-4 text-white text-xl font-bold bg-slate-800 p-3 py-7 w-full rounded"
-                    :style="`background-color: ${currentPlayer.color}; text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2)`">{{currentPlayer.name}} ({{currentPlayer.troops}})
-            </button>
+            <div class="flex gap-2" v-if="nextEvents.includes(RiskEventType.MOVE)">
+              <div class="w-1/2">
+                <TroopsStepper :maxAvailableTroops="maxAvailableTroops" :inputValue="input" @troopsSelected="input = $event" />
+              </div>
+              <button @click="sendEvent(RiskEventType.MOVE)" class="block w-1/2 text-lg font-bold p-3 rounded border-2 border-slate-800 hover:bg-slate-800 hover:text-white">MOVE TROOPS</button>
+            </div>
+
+            <div v-if="currentPlayer.name"
+                 class="mt-4 text-white text-xl font-bold bg-slate-800 p-3 py-7 w-full rounded"
+                 :style="`background-color: ${currentPlayer.color}; text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2)`">{{currentPlayer.name}} ({{currentPlayer.troops}})
+            </div>
+
             <button @click="reset()"
                     class="mt-4 text-white text-lg font-bold bg-slate-400 p-3 w-full rounded">RESET
             </button>
           </div>
+
           <details class="mb-4" open>
             <summary class="cursor-pointer text-xl font-semibold mb-2">Current State:</summary>
             <pre> {{ JSON.stringify(currentState.value, null, 2) }}</pre>
@@ -56,12 +40,12 @@
             <summary class="cursor-pointer text-xl font-semibold mb-2">Combat:</summary>
             <div class="flex gap-2">
               <div class="w-1/2">
-                <p class="font-semibold">{{ attacker }}</p>
-                <pre>{{ ownership[attacker] }}</pre>
+                <p class="font-semibold">{{ fromTerritory }}</p>
+                <pre>{{ ownership[fromTerritory] }}</pre>
               </div>
               <div class="w-1/2">
-                <p class="font-semibold">{{ target }}</p>
-                <pre>{{ ownership[target] }}</pre>
+                <p class="font-semibold">{{ toTerritory }}</p>
+                <pre>{{ ownership[toTerritory] }}</pre>
               </div>
             </div>
           </details>
@@ -82,8 +66,12 @@
             <pre> {{ JSON.stringify(territories, null, 2) }}</pre>
           </details>
           <details class="mb-4">
+            <summary class="cursor-pointer text-xl font-semibold mb-2">Next events</summary>
+            <pre> {{ JSON.stringify(nextEvents, null, 2) }}</pre>
+          </details>
+          <details class="mb-4">
             <summary class="cursor-pointer text-xl font-semibold mb-2">Full State:</summary>
-            <pre> {{ JSON.stringify(territories, null, 2) }}</pre>
+            <pre> {{ JSON.stringify(currentState, null, 2) }}</pre>
           </details>
         </div>
       </div>
@@ -101,10 +89,16 @@ import riskMachine from './states/riskMachine';
 import {Territory, Player, RiskEventType} from './config/types';
 import {stateKey} from "./config/constants.ts";
 import WorldMap from "./components/WorldMap.vue";
+import TroopsStepper from "./components/TroopsStepper.vue";
 
 export default {
   name: 'App',
-  components: {WorldMap},
+  computed: {
+    RiskEventType() {
+      return RiskEventType
+    }
+  },
+  components: {TroopsStepper, WorldMap},
   methods: {
     handleTerritoryClick(territory: Territory) {
       const event = {
@@ -124,8 +118,8 @@ export default {
     });
 
     const currentState = computed(() => snapshot.value);
-    const attacker = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
-    const target = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
+    const fromTerritory = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
+    const toTerritory = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
 
     const players = computed<Array<Player & { index: number}>>(() => {
       const {ownership, players} = currentState.value.context;
@@ -169,13 +163,13 @@ export default {
     });
 
     const territoriesDropdown = computed(() => {
-      if (currentState.value.value["game"]) {
+      if (currentState.value.matches("game")) {
         const allBorders = currentState.value.context.allBorders;
-        if (currentState.value.value.game["deployment"] || currentState.value.value.game["combat"] === "selectingAttackerOrEndTurn") {
+        if (currentState.value.matches("game.deyploment") || currentState.value.matches("combat.selectingAttackerOrEndTurn")) {
           return territories.value.filter(({territory}) => {
             return ownership.value[territory].player === currentPlayer.value.index;
           });
-        } else if (currentState.value.value.game["combat"]) {
+        } else if (currentState.value.matches("combat")) {
           const attacker = currentState.value.context.fromTerritory;
           return territories.value.filter(({territory}) => {
             return attacker && new Map(allBorders).get(attacker)?.includes(territory) && ownership.value[territory].player !== currentPlayer.value.index;
@@ -185,40 +179,54 @@ export default {
       return territories.value;
     });
 
-    const eventButtons = [
+    const maxAvailableTroops = computed<number>(() => {
+      if (currentState.value.matches("game.deployment")) {
+        return currentPlayer.value.troopsToDeploy;
+      } else if (currentState.value.matches("game.combat")) {
+        return Math.min(3, ownership.value[fromTerritory.value].troops - 1);
+      } else if (currentState.value.matches("game.consolidation")) {
+        return ownership.value[fromTerritory.value].troops - 1;
+      }
+      return 0;
+    });
+
+    const nextEvents = computed<RiskEventType[]>(() => {
+      return [...new Set([...currentState.value._nodes.flatMap((sn) => sn.ownEvents)])] as RiskEventType[];
+    });
+
+    const basicEvents = [
       RiskEventType.BACK,
       RiskEventType.CONTINUE,
       RiskEventType.END_TURN,
     ];
 
-    const eventInputs: { [key in RiskEventType]?: string[] } = {
-      [RiskEventType.MOVE]: ['troops'],
-    };
+    const nextBasicEvents = computed<RiskEventType[]>(() => {
+      return nextEvents.value.filter(event => basicEvents.includes(event))
+    });
 
-    const events = Object.keys(eventInputs) as RiskEventType[];
-
-    const selectedEvent = ref<RiskEventType | null>(RiskEventType.MOVE);
-    const input = ref("1");
-    const selectedTerritory = ref<Territory | null>(null);
+    const input = ref(1);
     const sendEvent = (event: RiskEventType) => {
       const eventData: any = {type: event};
-      if (eventInputs[event]?.includes('troops')) {
-        eventData['troops'] = parseInt(input.value);
+
+      switch (event) {
+        case RiskEventType.MOVE:
+          eventData['troops'] = input.value;
+          break;
+        default:
+          console.log("No data to append to event", event);
       }
-      if (eventInputs[event]?.includes('territory') && selectedTerritory.value) {
-        eventData['territory'] = selectedTerritory.value;
-      }
+
       console.log("<<", eventData);
       send(eventData);
-      if (event !== RiskEventType.MOVE) {
-        input.value = "1";
-      }
       localStorage.setItem(stateKey, JSON.stringify(currentState.value));
     };
 
     const reset = () => {
-      localStorage.removeItem(stateKey);
-      window.location.reload();
+      const isResetConfirmed = window.confirm("Are you sure, you want to reset?");
+      if (isResetConfirmed) {
+        localStorage.removeItem(stateKey);
+        window.location.reload();
+      }
     }
 
     return {
@@ -228,17 +236,16 @@ export default {
       territories,
       territoriesDropdown,
       players,
-      events,
-      selectedEvent,
       input,
-      selectedTerritory,
       sendEvent,
-      eventInputs,
       reset,
       send,
-      eventButtons,
-      attacker,
-      target
+      fromTerritory,
+      toTerritory,
+      nextEvents,
+      basicEvents,
+      nextBasicEvents,
+      maxAvailableTroops
     };
   }
 };

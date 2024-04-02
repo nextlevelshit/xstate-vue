@@ -5,7 +5,7 @@ import {
 	RiskEvent,
 	SelectTroopsEvent,
 	SelectTerritoryEvent,
-	Context
+	Context, RiskEventType
 } from "../config/types.ts";
 import {
 	players,
@@ -113,7 +113,6 @@ const riskMachine = setup<Context, RiskEvent>(
 		deployTroops: assign({
 			ownership: ({context, event}: { context: Context, event: SelectTroopsEvent }) => {
 				const territory = event?.territory ?? context.fromTerritory;
-				debugger;
 				const ownership = {...context.ownership};
 				ownership[territory as Territory].troops += event.troops;
 				console.log(">> ownership", ownership);
@@ -366,7 +365,7 @@ const riskMachine = setup<Context, RiskEvent>(
 						selectingAttackerOrEndTurn: {
 							entry: assign({
 								fromTerritory: null,
-								target: null
+								toTerritory: null
 							}),
 							on: {
 								SELECT_TERRITORY: [
@@ -434,7 +433,7 @@ const riskMachine = setup<Context, RiskEvent>(
 					}
 				},
 				consolidation: {
-					description: "Player can consolidate across connected territories once",
+					description: "Player can consolidate across inter-connected territories once",
 					initial: "selectingOrigin",
 					entry: assign({
 						fromTerritory: null,
