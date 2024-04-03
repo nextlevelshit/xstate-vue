@@ -1,4 +1,4 @@
-import { Interval } from "../config/types.ts";
+import {Interval} from "../config/types.ts";
 
 /**
  * Generates a random integer within a given range using the Web Cryptography API.

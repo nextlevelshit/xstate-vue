@@ -1,14 +1,12 @@
-import { assign } from "xstate";
-import { Context, TerritoryOwnership, Territory } from "../config/types.ts";
-import { initialTroopsPerPlayer } from "../config/constants.ts";
+import {assign} from "xstate";
+import {Context, TerritoryOwnership, Territory} from "../config/types.ts";
+import {initialTroopsPerPlayer} from "../config/constants.ts";
 
 export const assignTroopsToTerritories = assign({
-	ownership: ({ context }: { context: Context }) => {
-		const ownership: TerritoryOwnership = { ...context.ownership };
+	ownership: ({context}: {context: Context}) => {
+		const ownership: TerritoryOwnership = {...context.ownership};
 		for (let i = 0; i < context.players.length; i++) {
-			const territories = Object.keys(ownership).filter(
-				(territory) => ownership[territory as Territory].player === i
-			) as Territory[];
+			const territories = Object.keys(ownership).filter((territory) => ownership[territory as Territory].player === i) as Territory[];
 			const troopsToDeploy = initialTroopsPerPlayer - territories.length;
 			territories.forEach((territory) => {
 				ownership[territory].troops = 1;

@@ -1,34 +1,28 @@
-import { assign, setup } from "xstate";
-import { Territory, TerritoryOwnership, RiskEvent, Context } from "../config/types.ts";
-import {
-	players,
-	allBorders,
-	allTerritories,
-	playerColors,
-	playerNames,
-} from "../config/constants.ts";
-import { isPlayerAllowedToAttack } from "../guards/isPlayerAllowedToAttack.ts";
-import { isPlayerAllowedToChooseAttacker } from "../guards/isPlayerAllowedToChooseAttacker.ts";
-import { hasPlayerSufficientTroopsToReinforce } from "../guards/hasPlayerSufficientTroopsToReinforce.ts";
-import { isPlayerAllowedToDeploy } from "../guards/isPlayerAllowedToDeploy.ts";
-import { hasPlayerSufficientTroopsToDeploy } from "../guards/hasPlayerSufficientTroopsToDeploy.ts";
-import { hasPlayerSufficientTroopsToAttack } from "../guards/hasPlayerSufficientTroopsToAttack.ts";
-import { isTerritoryConnected } from "../guards/isTerritoryConnected.ts";
-import { incrementCurrentPlayer } from "../actions/incrementCurrentPlayer.ts";
-import { setFromTerritory } from "../actions/setFromTerritory.ts";
-import { setToTerritory } from "../actions/setToTerritory.ts";
-import { deployRemainingTroops } from "../actions/deployRemainingTroops.ts";
-import { reinforceTroops } from "../actions/reinforceTroops.ts";
-import { setPotentialTargetTerritories } from "../actions/setPotentialTargetTerritories.ts";
-import { rollTheDice } from "../actions/rollTheDice.ts";
-import { assignTroopsToTerritories } from "../actions/assignTroopsToTerritories.ts";
-import { ignoreClick } from "../actions/ignoreClick.ts";
-import { startCombatMode } from "../actions/startCombatMode.ts";
-import { assignFirstPlayer } from "../actions/assignFirstPlayer.ts";
-import { assignTerritoriesToPlayers } from "../actions/assignTerritoriesToPlayers.ts";
-import { deployTroops } from "../actions/deployTroops.ts";
-import { assignTroopsToDeploy } from "../actions/assignTroopsToDeploy.ts";
-import { selectTerritory } from "../actions/selectTerritory.ts";
+import {assign, setup} from "xstate";
+import {Territory, TerritoryOwnership, RiskEvent, Context} from "../config/types.ts";
+import {players, allBorders, allTerritories, playerColors, playerNames} from "../config/constants.ts";
+import {isPlayerAllowedToAttack} from "../guards/isPlayerAllowedToAttack.ts";
+import {isPlayerAllowedToChooseAttacker} from "../guards/isPlayerAllowedToChooseAttacker.ts";
+import {hasPlayerSufficientTroopsToReinforce} from "../guards/hasPlayerSufficientTroopsToReinforce.ts";
+import {isPlayerAllowedToDeploy} from "../guards/isPlayerAllowedToDeploy.ts";
+import {hasPlayerSufficientTroopsToDeploy} from "../guards/hasPlayerSufficientTroopsToDeploy.ts";
+import {hasPlayerSufficientTroopsToAttack} from "../guards/hasPlayerSufficientTroopsToAttack.ts";
+import {isTerritoryConnected} from "../guards/isTerritoryConnected.ts";
+import {incrementCurrentPlayer} from "../actions/incrementCurrentPlayer.ts";
+import {setFromTerritory} from "../actions/setFromTerritory.ts";
+import {setToTerritory} from "../actions/setToTerritory.ts";
+import {deployRemainingTroops} from "../actions/deployRemainingTroops.ts";
+import {reinforceTroops} from "../actions/reinforceTroops.ts";
+import {setPotentialTargetTerritories} from "../actions/setPotentialTargetTerritories.ts";
+import {rollTheDice} from "../actions/rollTheDice.ts";
+import {assignTroopsToTerritories} from "../actions/assignTroopsToTerritories.ts";
+import {ignoreClick} from "../actions/ignoreClick.ts";
+import {startCombatMode} from "../actions/startCombatMode.ts";
+import {assignFirstPlayer} from "../actions/assignFirstPlayer.ts";
+import {assignTerritoriesToPlayers} from "../actions/assignTerritoriesToPlayers.ts";
+import {deployTroops} from "../actions/deployTroops.ts";
+import {assignTroopsToDeploy} from "../actions/assignTroopsToDeploy.ts";
+import {selectTerritory} from "../actions/selectTerritory.ts";
 
 const riskMachine = setup<Context, RiskEvent>({
 	actions: {
@@ -67,7 +61,7 @@ const riskMachine = setup<Context, RiskEvent>({
 		toTerritory: null,
 		allBorders,
 		allTerritories,
-		players: Array.from({ length: players }, (_, i) => ({
+		players: Array.from({length: players}, (_, i) => ({
 			troopsToDeploy: 0,
 			color: playerColors[i],
 			name: playerNames[i]

@@ -1,4 +1,4 @@
-import { Territory } from "../config/types.ts";
+import {Territory} from "../config/types.ts";
 
 /**
  * Depth-first search algorithm to find all connected territories of a player.

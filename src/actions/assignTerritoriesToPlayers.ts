@@ -1,9 +1,9 @@
-import { assign } from "xstate";
-import { Context, TerritoryOwnership } from "../config/types.ts";
+import {assign} from "xstate";
+import {Context, TerritoryOwnership} from "../config/types.ts";
 
 export const assignTerritoriesToPlayers = assign({
-	ownership: ({ context }: { context: Context }) => {
-		const { allTerritories, players } = context;
+	ownership: ({context}: {context: Context}) => {
+		const {allTerritories, players} = context;
 		const ownership = {} as TerritoryOwnership;
 
 		// Copy territories array and shuffle it
@@ -18,7 +18,7 @@ export const assignTerritoriesToPlayers = assign({
 		// Assign territories to players
 		shuffledTerritories.forEach((territory, index) => {
 			const playerIndex = index % players.length;
-			ownership[territory] = { player: playerIndex, troops: 0 };
+			ownership[territory] = {player: playerIndex, troops: 0};
 			playerTerritoriesCount[playerIndex]++;
 		});
 
@@ -35,7 +35,7 @@ export const assignTerritoriesToPlayers = assign({
 
 		return ownership;
 	},
-	players: ({ context }: { context: Context }) => {
+	players: ({context}: {context: Context}) => {
 		const players = [...context.players];
 		console.log(">> players", players);
 		return players;

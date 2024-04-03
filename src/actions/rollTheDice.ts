@@ -1,17 +1,17 @@
-import { assign } from "xstate";
-import { Context, SelectTroopsEvent, Territory } from "../config/types.ts";
-import { randomIntFromInterval } from "../util/randomIntFromInterval.ts";
-import { diceInterval } from "../config/constants.ts";
+import {assign} from "xstate";
+import {Context, SelectTroopsEvent, Territory} from "../config/types.ts";
+import {randomIntFromInterval} from "../util/randomIntFromInterval.ts";
+import {diceInterval} from "../config/constants.ts";
 
 export const rollTheDice = assign({
-	ownership: ({ context, event }: { context: Context; event: SelectTroopsEvent }) => {
+	ownership: ({context, event}: {context: Context; event: SelectTroopsEvent}) => {
 		const attackerTroops = event.troops;
 		const defenderTroops = Math.min(event.troops, context.ownership[context.toTerritory as Territory].troops);
-		const ownership = { ...context.ownership };
+		const ownership = {...context.ownership};
 
 		// Simulate dice roll for attacker and defender
-		const attackerDice = Array.from({ length: Math.min(attackerTroops, 3) }, () => randomIntFromInterval(diceInterval));
-		const defenderDice = Array.from({ length: Math.min(defenderTroops, 2) }, () => randomIntFromInterval(diceInterval));
+		const attackerDice = Array.from({length: Math.min(attackerTroops, 3)}, () => randomIntFromInterval(diceInterval));
+		const defenderDice = Array.from({length: Math.min(defenderTroops, 2)}, () => randomIntFromInterval(diceInterval));
 
 		// Sort dice rolls in descending order
 		attackerDice.sort((a, b) => b - a);

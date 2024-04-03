@@ -1,8 +1,8 @@
-import { TerritoryOwnership, Territory } from "../config/types.ts";
-import { continentBonuses } from "../config/constants.ts";
+import {TerritoryOwnership, Territory} from "../config/types.ts";
+import {continentBonuses} from "../config/constants.ts";
 
 export const territoriesOwned = (player: number, ownership: TerritoryOwnership) => {
-	const territories = Object.keys({ ...ownership });
+	const territories = Object.keys({...ownership});
 
 	return territories.reduce((acc, territory) => {
 		if (player === ownership[territory as Territory].player) {

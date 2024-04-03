@@ -1,4 +1,4 @@
-import { Territory, Interval, Continent } from "./types.ts";
+import {Territory, Interval, Continent} from "./types.ts";
 
 export const stateKey = "risk:state";
 export const allBorders: [Territory, Territory[]][] = [
@@ -54,9 +54,9 @@ export const allBorders: [Territory, Territory[]][] = [
 ];
 
 export const continentBonuses: Continent[] = [
-	{ name: "Africa", bonus: 3, territories: ["north_africa", "egypt", "east_africa", "congo", "south_africa", "madagascar"] },
-	{ name: "Australia", bonus: 2, territories: ["indonesia", "new_guinea", "western_australia", "eastern_australia"] },
-	{ name: "South America", bonus: 2, territories: ["venezuela", "peru", "brazil", "argentina"] },
+	{name: "Africa", bonus: 3, territories: ["north_africa", "egypt", "east_africa", "congo", "south_africa", "madagascar"]},
+	{name: "Australia", bonus: 2, territories: ["indonesia", "new_guinea", "western_australia", "eastern_australia"]},
+	{name: "South America", bonus: 2, territories: ["venezuela", "peru", "brazil", "argentina"]},
 	{
 		name: "North America",
 		bonus: 5,

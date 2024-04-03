@@ -93,7 +93,7 @@
 					:players="players"
 					:ownership="ownership"
 					:territories="territories"
-					:colors="players.reduce((acc, player) => ({ ...acc, [player.index]: player.color }), {})"
+					:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
 				/>
 			</div>
 		</div>
@@ -101,174 +101,174 @@
 </template>
 
 <script lang="ts">
-import { ref, computed } from "vue";
-import { useMachine } from "@xstate/vue";
-import riskMachine from "./states/riskMachine";
-import { Territory, Player, RiskEventType } from "./config/types";
-import { stateKey } from "./config/constants.ts";
-import WorldMap from "./components/WorldMap.vue";
-import TroopsStepper from "./components/TroopsStepper.vue";
+	import {ref, computed} from "vue";
+	import {useMachine} from "@xstate/vue";
+	import riskMachine from "./states/riskMachine";
+	import {Territory, Player, RiskEventType} from "./config/types";
+	import {stateKey} from "./config/constants.ts";
+	import WorldMap from "./components/WorldMap.vue";
+	import TroopsStepper from "./components/TroopsStepper.vue";
 
-export default {
-	name: "App",
-	computed: {
-		RiskEventType() {
-			return RiskEventType;
-		}
-	},
-	components: { TroopsStepper, WorldMap },
-	methods: {
-		handleTerritoryClick(territory: Territory) {
-			const event = {
-				type: RiskEventType.SELECT_TERRITORY,
-				territory
-			};
-			console.log("<<", event);
-			this.send(event);
-		}
-	},
-	setup() {
-		const initialContext = localStorage.getItem(stateKey);
-		const initialState = initialContext ? JSON.parse(initialContext) : riskMachine.getInitialSnapshot();
+	export default {
+		name: "App",
+		computed: {
+			RiskEventType() {
+				return RiskEventType;
+			}
+		},
+		components: {TroopsStepper, WorldMap},
+		methods: {
+			handleTerritoryClick(territory: Territory) {
+				const event = {
+					type: RiskEventType.SELECT_TERRITORY,
+					territory
+				};
+				console.log("<<", event);
+				this.send(event);
+			}
+		},
+		setup() {
+			const initialContext = localStorage.getItem(stateKey);
+			const initialState = initialContext ? JSON.parse(initialContext) : riskMachine.getInitialSnapshot();
 
-		const { snapshot, send } = useMachine(riskMachine, {
-			snapshot: initialState
-		});
+			const {snapshot, send} = useMachine(riskMachine, {
+				snapshot: initialState
+			});
 
-		const currentState = computed(() => snapshot.value);
-		const fromTerritory = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
-		const toTerritory = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
+			const currentState = computed(() => snapshot.value);
+			const fromTerritory = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
+			const toTerritory = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
 
-		const players = computed<Array<Player & { index: number }>>(() => {
-			const { ownership, players } = currentState.value.context;
+			const players = computed<Array<Player & {index: number}>>(() => {
+				const {ownership, players} = currentState.value.context;
 
-			return players.map((player, index) => {
-				const territories = Object.keys(ownership).filter((territory) => ownership[territory as Territory].player === index);
-				const troops = territories.reduce((acc, territory) => acc + ownership[territory as Territory].troops, 0);
+				return players.map((player, index) => {
+					const territories = Object.keys(ownership).filter((territory) => ownership[territory as Territory].player === index);
+					const troops = territories.reduce((acc, territory) => acc + ownership[territory as Territory].troops, 0);
+					return {
+						...player,
+						troops,
+						territories,
+						index
+					};
+				});
+			});
+
+			const currentPlayer = computed(() => {
+				const {currentPlayer} = currentState.value.context;
 				return {
-					...player,
-					troops,
-					territories,
-					index
+					// index: currentPlayer,
+					...players.value[currentPlayer]
 				};
 			});
-		});
 
-		const currentPlayer = computed(() => {
-			const { currentPlayer } = currentState.value.context;
-			return {
-				// index: currentPlayer,
-				...players.value[currentPlayer]
-			};
-		});
-
-		const ownership = computed(() => {
-			return currentState.value.context.ownership;
-		});
-
-		const territories = computed(() => {
-			const allTerritories = currentState.value.context.allTerritories.sort((a, b) => (a > b ? 1 : -1));
-			return allTerritories.map((territory) => {
-				const ownership = currentState.value.context.ownership[territory as Territory];
-				if (!ownership) return { territory, player: -1, troops: 0 };
-				const { player, troops } = currentState.value.context.ownership[territory as Territory];
-				return {
-					territory,
-					player: currentState.value.context.players[player],
-					troops: troops
-				};
+			const ownership = computed(() => {
+				return currentState.value.context.ownership;
 			});
-		});
 
-		const territoriesDropdown = computed(() => {
-			if (currentState.value.matches("game")) {
-				const allBorders = currentState.value.context.allBorders;
-				if (currentState.value.matches("game.deyploment") || currentState.value.matches("combat.selectingAttackerOrEndTurn")) {
-					return territories.value.filter(({ territory }) => {
-						return ownership.value[territory].player === currentPlayer.value.index;
-					});
-				} else if (currentState.value.matches("combat")) {
-					const attacker = currentState.value.context.fromTerritory;
-					return territories.value.filter(({ territory }) => {
-						return (
-							attacker &&
-							new Map(allBorders).get(attacker)?.includes(territory) &&
-							ownership.value[territory].player !== currentPlayer.value.index
-						);
-					});
+			const territories = computed(() => {
+				const allTerritories = currentState.value.context.allTerritories.sort((a, b) => (a > b ? 1 : -1));
+				return allTerritories.map((territory) => {
+					const ownership = currentState.value.context.ownership[territory as Territory];
+					if (!ownership) return {territory, player: -1, troops: 0};
+					const {player, troops} = currentState.value.context.ownership[territory as Territory];
+					return {
+						territory,
+						player: currentState.value.context.players[player],
+						troops: troops
+					};
+				});
+			});
+
+			const territoriesDropdown = computed(() => {
+				if (currentState.value.matches("game")) {
+					const allBorders = currentState.value.context.allBorders;
+					if (currentState.value.matches("game.deyploment") || currentState.value.matches("combat.selectingAttackerOrEndTurn")) {
+						return territories.value.filter(({territory}) => {
+							return ownership.value[territory].player === currentPlayer.value.index;
+						});
+					} else if (currentState.value.matches("combat")) {
+						const attacker = currentState.value.context.fromTerritory;
+						return territories.value.filter(({territory}) => {
+							return (
+								attacker &&
+								new Map(allBorders).get(attacker)?.includes(territory) &&
+								ownership.value[territory].player !== currentPlayer.value.index
+							);
+						});
+					}
 				}
-			}
-			return territories.value;
-		});
+				return territories.value;
+			});
 
-		const maxAvailableTroops = computed<number>(() => {
-			if (currentState.value.matches("game.deployment")) {
-				return currentPlayer.value.troopsToDeploy;
-			} else if (currentState.value.matches("game.combat")) {
-				return Math.min(3, ownership.value[fromTerritory.value].troops - 1);
-			} else if (currentState.value.matches("game.consolidation")) {
-				return ownership.value[fromTerritory.value].troops - 1;
-			}
-			return 0;
-		});
+			const maxAvailableTroops = computed<number>(() => {
+				if (currentState.value.matches("game.deployment")) {
+					return currentPlayer.value.troopsToDeploy;
+				} else if (currentState.value.matches("game.combat")) {
+					return Math.min(3, ownership.value[fromTerritory.value].troops - 1);
+				} else if (currentState.value.matches("game.consolidation")) {
+					return ownership.value[fromTerritory.value].troops - 1;
+				}
+				return 0;
+			});
 
-		const nextEvents = computed<RiskEventType[]>(() => {
-			return [...new Set([...currentState.value._nodes.flatMap((sn) => sn.ownEvents)])] as RiskEventType[];
-		});
+			const nextEvents = computed<RiskEventType[]>(() => {
+				return [...new Set([...currentState.value._nodes.flatMap((sn) => sn.ownEvents)])] as RiskEventType[];
+			});
 
-		const basicEvents = [RiskEventType.BACK, RiskEventType.CONTINUE, RiskEventType.END_TURN];
+			const basicEvents = [RiskEventType.BACK, RiskEventType.CONTINUE, RiskEventType.END_TURN];
 
-		const nextBasicEvents = computed<RiskEventType[]>(() => {
-			return nextEvents.value.filter((event) => basicEvents.includes(event));
-		});
+			const nextBasicEvents = computed<RiskEventType[]>(() => {
+				return nextEvents.value.filter((event) => basicEvents.includes(event));
+			});
 
-		const input = ref(1);
-		const sendEvent = (event: RiskEventType) => {
-			const eventData: any = { type: event };
+			const input = ref(1);
+			const sendEvent = (event: RiskEventType) => {
+				const eventData: any = {type: event};
 
-			switch (event) {
-				case RiskEventType.MOVE:
-					eventData["troops"] = input.value;
-					break;
-				default:
-					console.log("No data to append to event", event);
-			}
+				switch (event) {
+					case RiskEventType.MOVE:
+						eventData["troops"] = input.value;
+						break;
+					default:
+						console.log("No data to append to event", event);
+				}
 
-			console.log("<<", eventData);
-			send(eventData);
-			localStorage.setItem(stateKey, JSON.stringify(currentState.value));
-		};
+				console.log("<<", eventData);
+				send(eventData);
+				localStorage.setItem(stateKey, JSON.stringify(currentState.value));
+			};
 
-		const reset = () => {
-			const isResetConfirmed = window.confirm("Are you sure, you want to reset?");
-			if (isResetConfirmed) {
-				localStorage.removeItem(stateKey);
-				window.location.reload();
-			}
-		};
+			const reset = () => {
+				const isResetConfirmed = window.confirm("Are you sure, you want to reset?");
+				if (isResetConfirmed) {
+					localStorage.removeItem(stateKey);
+					window.location.reload();
+				}
+			};
 
-		return {
-			currentState,
-			currentPlayer,
-			ownership,
-			territories,
-			territoriesDropdown,
-			players,
-			input,
-			sendEvent,
-			reset,
-			send,
-			fromTerritory,
-			toTerritory,
-			nextEvents,
-			basicEvents,
-			nextBasicEvents,
-			maxAvailableTroops
-		};
-	}
-};
+			return {
+				currentState,
+				currentPlayer,
+				ownership,
+				territories,
+				territoriesDropdown,
+				players,
+				input,
+				sendEvent,
+				reset,
+				send,
+				fromTerritory,
+				toTerritory,
+				nextEvents,
+				basicEvents,
+				nextBasicEvents,
+				maxAvailableTroops
+			};
+		}
+	};
 </script>
 
 <style>
-/* No additional styles needed */
+	/* No additional styles needed */
 </style>

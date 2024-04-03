@@ -15,41 +15,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+	import {defineComponent, PropType} from "vue";
 
-export default defineComponent({
-	props: {
-		maxAvailableTroops: {
-			type: Number as PropType<number>,
-			required: true
+	export default defineComponent({
+		props: {
+			maxAvailableTroops: {
+				type: Number as PropType<number>,
+				required: true
+			},
+			inputValue: {
+				type: Number as PropType<number>,
+				required: true
+			}
 		},
-		inputValue: {
-			type: Number as PropType<number>,
-			required: true
+		computed: {
+			nums(): number[] {
+				return Array.from({length: this.maxAvailableTroops}, (_, i) => i + 1);
+			}
+		},
+		methods: {
+			selectTroops(num: number) {
+				this.$emit("troopsSelected", num);
+			}
 		}
-	},
-	computed: {
-		nums(): number[] {
-			return Array.from({ length: this.maxAvailableTroops }, (_, i) => i + 1);
-		}
-	},
-	methods: {
-		selectTroops(num: number) {
-			this.$emit("troopsSelected", num);
-		}
-	}
-});
+	});
 </script>
 
 <style scoped>
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-	display: none;
-}
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
-}
+	/* Hide scrollbar for IE, Edge and Firefox */
+	.no-scrollbar {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
 </style>

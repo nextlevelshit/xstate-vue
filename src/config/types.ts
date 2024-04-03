@@ -117,7 +117,7 @@ export enum RiskEventType {
 	CONTINUE = "CONTINUE"
 }
 
-export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | { type: RiskEventType };
+export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};
 
 export type RiskGuard<T> = {
 	context: Context;

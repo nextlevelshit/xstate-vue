@@ -36,6 +36,8 @@
     "arrowParens": "always",
     "printWidth": 140,
     "tabWidth": 4,
-    "useTabs": true
+    "useTabs": true,
+    "bracketSpacing": false,
+    "vueIndentScriptAndStyle": true
   }
 }

@@ -1,5 +1,5 @@
-import { Territory } from "../config/types.ts";
-import { deepFirstSearch } from "./deepFirstSearch.ts";
+import {Territory} from "../config/types.ts";
+import {deepFirstSearch} from "./deepFirstSearch.ts";
 
 /**
  * Returns a map of territories and their connected territories.

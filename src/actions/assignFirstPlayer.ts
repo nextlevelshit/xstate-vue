@@ -1,5 +1,5 @@
-import { assign } from "xstate";
-import { players } from "../config/constants.ts";
+import {assign} from "xstate";
+import {players} from "../config/constants.ts";
 
 export const assignFirstPlayer = assign({
 	currentPlayer: () => {
