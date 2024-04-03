@@ -7,7 +7,9 @@
     "start": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "generate:types": "xstate typegen \"src/states/*.ts\""
+    "generate:types": "xstate typegen \"src/states/*.ts\"",
+    "lint": "prettier --check \"src/**/*.{ts,vue}\"",
+    "lint:fix": "prettier --check -w \"src/**/*.{ts,vue}\""
   },
   "dependencies": {
     "@xstate/cli": "^0.5.17",
@@ -21,9 +23,19 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vue-tsc": "^2.0.6"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "arrowParens": "always",
+    "printWidth": 140,
+    "tabWidth": 4,
+    "useTabs": true
   }
 }

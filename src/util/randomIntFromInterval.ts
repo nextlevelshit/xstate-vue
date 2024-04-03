@@ -1,4 +1,4 @@
-import {Interval} from "../config/types.ts";
+import { Interval } from "../config/types.ts";
 
 /**
  * Generates a random integer within a given range using the Web Cryptography API.
@@ -16,4 +16,4 @@ export const randomIntFromInterval = ([min, max]: Interval): number => {
 	const randomNormalized = randomInt / 4294967295;
 	// Scale to [min, max] and round
 	return Math.floor(randomNormalized * (max - min + 1) + min);
-}
+};

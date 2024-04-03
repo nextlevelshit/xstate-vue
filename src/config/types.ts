@@ -1,7 +1,49 @@
 /**
  * The territory type
  */
-export type Territory = "alaska" | "northwest_territory" | "greenland" | "alberta" | "ontario" | "quebec" | "western_united_states" | "eastern_united_states" | "central_america" | "venezuela" | "peru" | "brazil" | "argentina" | "iceland" | "scandinavia" | "ukraine" | "great_britain" | "northern_europe" | "western_europe" | "southern_europe" | "north_africa" | "egypt" | "east_africa" | "congo" | "south_africa" | "madagascar" | "ural" | "siberia" | "yakursk" | "kamchatka" | "irkutsk" | "mongolia" | "japan" | "afghanistan" | "china" | "middle_east" | "india" | "siam" | "indonesia" | "new_guinea" | "western_australia" | "eastern_australia";
+export type Territory =
+	| "alaska"
+	| "northwest_territory"
+	| "greenland"
+	| "alberta"
+	| "ontario"
+	| "quebec"
+	| "western_united_states"
+	| "eastern_united_states"
+	| "central_america"
+	| "venezuela"
+	| "peru"
+	| "brazil"
+	| "argentina"
+	| "iceland"
+	| "scandinavia"
+	| "ukraine"
+	| "great_britain"
+	| "northern_europe"
+	| "western_europe"
+	| "southern_europe"
+	| "north_africa"
+	| "egypt"
+	| "east_africa"
+	| "congo"
+	| "south_africa"
+	| "madagascar"
+	| "ural"
+	| "siberia"
+	| "yakursk"
+	| "kamchatka"
+	| "irkutsk"
+	| "mongolia"
+	| "japan"
+	| "afghanistan"
+	| "china"
+	| "middle_east"
+	| "india"
+	| "siam"
+	| "indonesia"
+	| "new_guinea"
+	| "western_australia"
+	| "eastern_australia";
 
 /**
  * The ownership of each territory
@@ -35,7 +77,7 @@ export type Player = {
 	 * Amount of troops which can be deployed to owned territories
 	 */
 	troopsToDeploy: number;
-}
+};
 
 /**
  * The interval type
@@ -80,7 +122,7 @@ export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | { type: RiskE
 export type RiskGuard<T> = {
 	context: Context;
 	event: T;
-}
+};
 
 export interface Continent {
 	name: string;

@@ -1,4 +1,4 @@
-import {Territory} from "../config/types.ts";
+import { Territory } from "../config/types.ts";
 
 /**
  * Depth-first search algorithm to find all connected territories of a player.
@@ -7,7 +7,12 @@ import {Territory} from "../config/types.ts";
  * @param allBorders - The borders of all territories
  * @param visited - The set of visited territories
  */
-export const deepFirstSearch = (territory: Territory, playerTerritories: Territory[], allBorders: [Territory, Territory[]][], visited: Set<Territory>): Territory[] => {
+export const deepFirstSearch = (
+	territory: Territory,
+	playerTerritories: Territory[],
+	allBorders: [Territory, Territory[]][],
+	visited: Set<Territory>
+): Territory[] => {
 	visited.add(territory);
 
 	const bordersMap = new Map(allBorders);
@@ -22,4 +27,4 @@ export const deepFirstSearch = (territory: Territory, playerTerritories: Territo
 	}
 
 	return Array.from(visited);
-}
+};
