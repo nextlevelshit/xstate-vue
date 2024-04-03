@@ -81,3 +81,9 @@ export type RiskGuard<T> = {
 	context: Context;
 	event: T;
 }
+
+export interface Continent {
+	name: string;
+	bonus: number;
+	territories: Territory[];
+}

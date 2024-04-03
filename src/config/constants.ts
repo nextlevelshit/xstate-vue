@@ -1,4 +1,4 @@
-import {Territory, Interval} from "./types.ts";
+import {Territory, Interval, Continent} from "./types.ts";
 
 export const stateKey = "risk:state";
 export const allBorders: [Territory, Territory[]][] = [
@@ -52,8 +52,17 @@ export const allBorders: [Territory, Territory[]][] = [
 	["western_australia", ["indonesia", "new_guinea", "eastern_australia"]],
 	["eastern_australia", ["new_guinea", "western_australia"]]
 ];
+
+export const continentBonuses: Continent[] = [
+	{ name: "Africa", bonus: 3, territories: ["north_africa", "egypt", "east_africa", "congo", "south_africa", "madagascar"] },
+	{ name: "Australia", bonus: 2, territories: ["indonesia", "new_guinea", "western_australia", "eastern_australia"] },
+	{ name: "South America", bonus: 2, territories: ["venezuela", "peru", "brazil", "argentina"] },
+	{ name: "North America", bonus: 5, territories: ["alaska", "northwest_territory", "greenland", "alberta", "ontario", "quebec", "western_united_states", "eastern_united_states", "central_america"] },
+	{ name: "Europe", bonus: 5, territories: ["iceland", "scandinavia", "ukraine", "great_britain", "northern_europe", "western_europe", "southern_europe"] },
+	{ name: "Asia", bonus: 7, territories: ["ural", "siberia", "yakursk", "kamchatka", "irkutsk", "mongolia", "japan", "afghanistan", "china", "middle_east", "india", "siam"] }
+];
 export const allTerritories = Object.keys(Object.fromEntries(allBorders)) as Territory[]
-export const players = 5;
+export const players = 2;
 
 export const playerColors = ['#ffbe0b', '#43aa8b', '#ff006e', '#8338ec', '#3a86ff', '#fb5607', '#BADA55'];
 
