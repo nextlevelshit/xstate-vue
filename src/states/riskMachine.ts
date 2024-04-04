@@ -23,6 +23,8 @@ import {assignTerritoriesToPlayers} from "../actions/assignTerritoriesToPlayers.
 import {deployTroops} from "../actions/deployTroops.ts";
 import {assignTroopsToDeploy} from "../actions/assignTroopsToDeploy.ts";
 import {selectTerritory} from "../actions/selectTerritory.ts";
+import {hasPlayerSufficientTroopsToFortify} from "../guards/hasPlayerSufficientTroopsToFortify.ts";
+import {fortifyTroops} from "../actions/fortifyTroops.ts";
 
 const riskMachine = setup<Context, RiskEvent>({
 	actions: {
@@ -40,7 +42,8 @@ const riskMachine = setup<Context, RiskEvent>({
 		rollTheDice,
 		deployRemainingTroops,
 		reinforceTroops,
-		setPotentialTargetTerritories
+		setPotentialTargetTerritories,
+		fortifyTroops
 	},
 	guards: {
 		isPlayerAllowedToChooseAttacker,
@@ -49,7 +52,13 @@ const riskMachine = setup<Context, RiskEvent>({
 		hasPlayerSufficientTroopsToDeploy,
 		hasPlayerSufficientTroopsToAttack,
 		isTerritoryConnected,
-		hasPlayerSufficientTroopsToReinforce
+		hasPlayerSufficientTroopsToReinforce,
+		hasPlayerSufficientTroopsToFortify,
+		attackerHasWon: ({context}: { context: Context}) => {
+			const isValid = context.ownership[context.toTerritory as Territory].troops === 0;
+			console.log(">> attackerHasWon", isValid);
+			return isValid;
+		}
 	}
 }).createMachine({
 	id: "risk",
@@ -66,7 +75,8 @@ const riskMachine = setup<Context, RiskEvent>({
 			color: playerColors[i],
 			name: playerNames[i]
 		})),
-		potentialTargetTerritories: [] as Territory[]
+		potentialTargetTerritories: [] as Territory[],
+		attackerTroops: 0
 	},
 	initial: "setup",
 	states: {
@@ -134,7 +144,7 @@ const riskMachine = setup<Context, RiskEvent>({
 								MOVE: [
 									{
 										guard: "hasPlayerSufficientTroopsToDeploy",
-										target: "selectingTerritoryOrEndTurn",
+										target: "deploymentConditionCheck",
 										actions: ["deployTroops"]
 									},
 									{
@@ -147,6 +157,17 @@ const riskMachine = setup<Context, RiskEvent>({
 								],
 								BACK: "selectingTerritoryOrEndTurn"
 							}
+						},
+						deploymentConditionCheck: {
+							always: [
+								{
+									guard: "hasPlayerSufficientTroopsToDeploy",
+									target: "selectingTerritoryOrEndTurn"
+								},
+								{
+									target: "#risk.game.combat"
+								}
+							]
 						}
 					},
 					on: {
@@ -207,7 +228,7 @@ const riskMachine = setup<Context, RiskEvent>({
 									{
 										guard: "hasPlayerSufficientTroopsToAttack",
 										actions: ["rollTheDice"],
-										target: "combat"
+										target: "victoryConditionCheck"
 									}
 								],
 								SELECT_TERRITORY: [
@@ -219,6 +240,35 @@ const riskMachine = setup<Context, RiskEvent>({
 								],
 								BACK: {
 									target: "selectingTarget"
+								}
+							}
+						},
+						victoryConditionCheck: {
+							always: [
+								{
+									// cond: "attackerHasWon",
+									guard: "attackerHasWon",
+									target: "fortify"
+								},
+								{
+									target: "combat"
+								}
+							]
+						},
+						fortify: {
+							on: {
+								MOVE: [
+									{
+										guard: "hasPlayerSufficientTroopsToFortify",
+										target: "#risk.game.combat.selectingTarget",
+										actions: ["fortifyTroops"]
+									},
+									{
+										actions: ["ignoreClick"],
+									}
+								],
+								CONTINUE: {
+									target: "#risk.game.combat",
 								}
 							}
 						}

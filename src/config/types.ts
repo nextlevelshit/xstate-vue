@@ -94,6 +94,7 @@ export interface Context {
 	allTerritories: Territory[];
 	players: Player[];
 	error: string;
+	attackerTroops: number;
 }
 
 export interface SelectTerritoryEvent {

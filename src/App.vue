@@ -19,7 +19,8 @@
 						<div class="flex gap-2" v-if="nextEvents.includes(RiskEventType.MOVE)">
 							<div class="w-1/2">
 								<TroopsStepper
-									:maxAvailableTroops="maxAvailableTroops"
+									:min="minAvailableTroops"
+									:max="maxAvailableTroops"
 									:inputValue="input"
 									@troopsSelected="input = $event"
 								/>
@@ -180,29 +181,17 @@
 				});
 			});
 
-			const territoriesDropdown = computed(() => {
-				if (currentState.value.matches("game")) {
-					const allBorders = currentState.value.context.allBorders;
-					if (currentState.value.matches("game.deyploment") || currentState.value.matches("combat.selectingAttackerOrEndTurn")) {
-						return territories.value.filter(({territory}) => {
-							return ownership.value[territory].player === currentPlayer.value.index;
-						});
-					} else if (currentState.value.matches("combat")) {
-						const attacker = currentState.value.context.fromTerritory;
-						return territories.value.filter(({territory}) => {
-							return (
-								attacker &&
-								new Map(allBorders).get(attacker)?.includes(territory) &&
-								ownership.value[territory].player !== currentPlayer.value.index
-							);
-						});
-					}
+			const minAvailableTroops = computed<number>(() => {
+				if (currentState.value.matches("game.combat.fortify")) {
+					return Math.min(ownership.value[fromTerritory.value].troops - 1, currentState.value.context.attackerTroops);
 				}
-				return territories.value;
+				return 1;
 			});
 
 			const maxAvailableTroops = computed<number>(() => {
-				if (currentState.value.matches("game.deployment")) {
+				if (currentState.value.matches("game.combat.fortify")) {
+					return ownership.value[fromTerritory.value].troops - 1;
+				} else if (currentState.value.matches("game.deployment")) {
 					return currentPlayer.value.troopsToDeploy;
 				} else if (currentState.value.matches("game.combat")) {
 					return Math.min(3, ownership.value[fromTerritory.value].troops - 1);
@@ -252,7 +241,6 @@
 				currentPlayer,
 				ownership,
 				territories,
-				territoriesDropdown,
 				players,
 				input,
 				sendEvent,
@@ -263,7 +251,8 @@
 				nextEvents,
 				basicEvents,
 				nextBasicEvents,
-				maxAvailableTroops
+				maxAvailableTroops,
+				minAvailableTroops
 			};
 		}
 	};

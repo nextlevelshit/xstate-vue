@@ -31,14 +31,12 @@ export const rollTheDice = assign({
 		}
 
 		// Check if territory has been lost
-		const remainingAttackerTroops = ownership[context.fromTerritory as Territory].troops;
 		const remainingTargetTroops = ownership[context.toTerritory as Territory].troops;
 		if (remainingTargetTroops === 0) {
 			ownership[context.toTerritory as Territory] = {
 				player: context.currentPlayer,
-				troops: attackerTroops
+				troops: 0
 			};
-			ownership[context.fromTerritory as Territory].troops = remainingAttackerTroops - attackerTroops;
 		}
 
 		console.log(">> ownership", ownership);

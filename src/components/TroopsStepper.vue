@@ -19,9 +19,14 @@
 
 	export default defineComponent({
 		props: {
-			maxAvailableTroops: {
+			max: {
 				type: Number as PropType<number>,
 				required: true
+			},
+			min: {
+				type: Number as PropType<number>,
+				required: false,
+				default: 1
 			},
 			inputValue: {
 				type: Number as PropType<number>,
@@ -30,7 +35,9 @@
 		},
 		computed: {
 			nums(): number[] {
-				return Array.from({length: this.maxAvailableTroops}, (_, i) => i + 1);
+				const fromOne = Array.from({length: this.max}, (_, i) => i + 1);
+				// remove numbers less than min
+				return fromOne.filter(num => num >= this.min);
 			}
 		},
 		methods: {
