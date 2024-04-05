@@ -25,8 +25,17 @@
 			ownership: {
 				type: Object as PropType<TerritoryOwnership>,
 				required: true
+			},
+			fromTerritory: {
+				type: String as PropType<Territory>,
+				required: false
+			},
+			toTerritory: {
+				type: String as PropType<Territory>,
+				required: false
 			}
 		},
+		methods: {},
 		setup(props, {emit}) {
 			const renderMap = () => {
 				// Load your SVG map
@@ -74,12 +83,46 @@
 							emit("territory-clicked", territory);
 						});
 					});
+
+					if (props.fromTerritory && props.toTerritory) {
+						const from = d3.select(`#${props.fromTerritory}`).node()?.getBBox();
+						const to = d3.select(`#${props.toTerritory}`).node()?.getBBox();
+						if (from && to) {
+							const x = (from.x - (from.width / 2) - to.x - (to.width / 2)) * 4;
+							const y = (from.y - (from.height / 2) - to.y - (to.height / 2)) * 4;
+							// const y = (from.y - to.y);
+
+							// Calculate the translation needed to center the point between the two territories
+							// const translateX = (svg.node()?.getBBox().width / 2 - x)// * 0.5;
+							// const translateY = (svg.node()?.getBBox().height / 2 - y)// * 0.5;
+
+							// debugger;
+
+							// svg.attr("transform", `translate(${x}, ${y}) scale(2)`);
+						}
+					}
 				});
 			};
 
+			// const zoomTo = (ids: Territory[]) => {
+			// 	const svg = d3.select("#map svg");
+			// 	const paths = ids.map(id => d3.select(`#${id}`).node()?.getBBox());
+			// 	const x = paths.reduce((sum, path) => sum + path.x + path.width / 2, 0) / paths.length;
+			// 	const y = paths.reduce((sum, path) => sum + path.y + path.height / 2, 0) / paths.length;
+			// 	svg.attr('transform', `translate(${-x}, ${-y}) scale(4)`);
+			// 	// const zoom = d3.zoom().on('zoom', (event) => {
+			// 	// 	svg.attr('transform', event.transform);
+			// 	// });
+			// 	// svg.call(zoom.transform, d3.zoomIdentity.translate(-x, -y).scale(4));
+			// }
+
 			onMounted(renderMap);
 
-			watch(() => [props.territories, props.colors, props.players, props.ownership], renderMap, {deep: true});
+			watch(() => [props.territories, props.colors, props.players, props.ownership, props.fromTerritory, props.toTerritory], renderMap, {deep: true});
+			// watch(() => [props.fromTerritory, props.toTerritory], ([from, to]) => {
+			// 	if (!(from && to)) return;
+			// 	zoomTo([from, to]);
+			// });
 		}
 	};
 </script>
@@ -88,7 +131,7 @@
 	svg {
 		@apply absolute inset-0;
 		transition: transform 0.8s;
-		transform: rotateX(8deg) translate(0, 0) scale(1);
+		//transform: rotateX(8deg) translate(0, 0) scale(1);
 	}
 
 	svg * {

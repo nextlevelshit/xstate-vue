@@ -94,6 +94,8 @@
 					:players="players"
 					:ownership="ownership"
 					:territories="territories"
+					:fromTerritory="fromTerritory"
+					:toTerritory="toTerritory"
 					:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
 				/>
 			</div>
