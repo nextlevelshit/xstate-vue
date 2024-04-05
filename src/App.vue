@@ -1,8 +1,8 @@
 <template>
 	<main class="w-full h-screen">
 		<div class="flex gap-2 py-8 h-full">
-			<div class="w-1/4">
-				<div class="p-8 bg-white shadow-md rounded-lg">
+			<div class="w-1/4 relative">
+				<div class="p-8 bg-[#fffffff1] shadow-md rounded-lg absolute z-10">
 					<h1 class="text-2xl font-bold mb-4">Risk Game State Machine Monitor</h1>
 					<div class="flex flex-col gap-4 mb-4">
 						<div class="flex gap-2 justify-between">
@@ -44,12 +44,12 @@
 						<button @click="reset()" class="mt-4 text-white text-lg font-bold bg-slate-400 p-3 w-full rounded">RESET</button>
 					</div>
 
-					<details class="mb-4" open>
+					<details class="mb-4">
 						<summary class="cursor-pointer text-xl font-semibold mb-2">Current State:</summary>
 						<pre> {{ JSON.stringify(currentState.value, null, 2) }}</pre>
 					</details>
 
-					<details class="mb-4">
+					<details class="mb-4" open>
 						<summary class="cursor-pointer text-xl font-semibold mb-2">Combat:</summary>
 						<div class="flex gap-2">
 							<div class="w-1/2">

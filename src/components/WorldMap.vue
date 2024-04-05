@@ -39,30 +39,33 @@
 		setup(props, {emit}) {
 			const renderMap = () => {
 				// Load your SVG map
-				d3.xml("/map.svg").then((data: any) => {
+				d3.xml("/map5.svg").then((data: any) => {
 					// Remove old SVG if it exists
 					d3.select("#map svg").remove();
 					// Append the loaded SVG to your div
-					const svg = d3
-						.select("#map")
-						.append("svg")
-						.attr("width", "100%")
-						.attr("height", "100%")
+					const map = d3
+						.select("#map");
+						// .append("svg")
+						// .attr("width", "100%")
+						// .attr("height", "100%");
 						// .call(d3.zoom().on('zoom', (event: any) => {
 						//   svg.attr('transform', event.transform);
 						// }))
-						.append("g");
+						// .append("g");
 
-					svg.node()?.append(data.documentElement);
+					// debugger;
+
+					(map.node() as HTMLElement)?.append(data.documentElement);
 
 					props.territories.forEach(({territory, troops, player}) => {
 						const territoryElement = d3.select(`#${territory}`);
 						const playerColor = player.color || "black";
 						player.color && territoryElement.style("fill", playerColor);
-						const bbox = territoryElement.node()?.getBBox();
+						const bbox = (territoryElement.node() as SVGGraphicsElement).getBBox();
 						const middleX = bbox.x + bbox.width / 2;
 						const middleY = bbox.y + bbox.height / 2;
-						svg.select("svg #territories")
+
+						map.select("svg #territories")
 							.append("circle")
 							.attr("cx", middleX)
 							.attr("cy", middleY)
@@ -70,7 +73,8 @@
 							.attr("fill", playerColor)
 							.attr("class", "troopsBackground")
 							.attr("stroke", "white");
-						svg.select("svg #territories")
+
+						map.select("svg #territories")
 							.append("text") // Append SVG text element
 							.attr("x", middleX)
 							.attr("y", middleY)
@@ -79,18 +83,55 @@
 							.attr("dominant-baseline", "central")
 							.attr("class", "troops")
 							.text(troops); // Set the text content
+
 						territoryElement.on("click", () => {
 							emit("territory-clicked", territory);
 						});
 					});
 
 					if (props.fromTerritory && props.toTerritory) {
-						const from = d3.select(`#${props.fromTerritory}`).node()?.getBBox();
-						const to = d3.select(`#${props.toTerritory}`).node()?.getBBox();
+						const from = (d3.select(`#${props.fromTerritory}`).node() as SVGGraphicsElement).getBBox();
+						const to = (d3.select(`#${props.toTerritory}`).node() as SVGGraphicsElement).getBBox();
 						if (from && to) {
-							const x = (from.x - (from.width / 2) - to.x - (to.width / 2)) * 4;
-							const y = (from.y - (from.height / 2) - to.y - (to.height / 2)) * 4;
-							// const y = (from.y - to.y);
+							// const x = (from.x - (from.width / 2) + to.x - (to.width / 2));
+							// const y = (from.y - (from.height / 2) + to.y - (to.height / 2));
+
+
+							// SVGs built with Inkscape leave strange transform properties to the top layer
+							// and each group of paths. This values can be found in the SVG itself under ids:
+							// g1 and all groups inside like terrutories, continents etc.
+							//
+							//                                    .---------------.--------- top layer translate
+							//                          .--------|-------.-------|---------- group translate
+							const [marginX, marginY] = [20 - 191.39741, 20 - 137.15072];
+							// debugger;
+							const x = ((from.x + (from.width / 2)) * 0.5 + (to.x + (to.width / 2)) * 0.5) + marginX;
+							const y = ((from.y + (from.height / 2)) * 0.5 + (to.y + (to.height / 2)) * 0.5) + marginY;
+
+							const detlaX = (from.x + from.width * .5) - (to.x + to.width * .5);
+							const deltaY = (from.y + from.height * .5) - (to.y + to.height * .5);
+
+							const centerCombatX = ((from.x + from.width * .5) + (to.x + to.width * .5)) * .5;
+							const centerCombatY = ((from.y + from.height * .5) + (to.y + to.height * .5)) * .5;
+
+
+							const mapWidth = map.select("svg").node()?.getBBox().width;
+							const mapHeight = map.select("svg").node()?.getBBox().height;
+
+							const centerX = mapWidth * .5;
+							const centerY = mapHeight * .5;
+
+							// map.select("svg").append("circle")
+							// 	.attr("r", 60)
+							// 	.attr("fill", "transparent")
+							// 	.attr("stroke", "black")
+							// 	.attr("stroke-width", 5)
+							// 	// .attr("cx", )
+							// 	.attr("cx", x)
+							// 	.attr("cy", y);
+
+							// debugger;
+							// debugger;
 
 							// Calculate the translation needed to center the point between the two territories
 							// const translateX = (svg.node()?.getBBox().width / 2 - x)// * 0.5;
@@ -98,8 +139,14 @@
 
 							// debugger;
 
-							// svg.attr("transform", `translate(${x}, ${y}) scale(2)`);
+							map.select("svg").attr("transform", `translate(${-(centerCombatX - centerX) * 2}, ${(-(centerCombatY - centerY) * 2)}) scale(2)`);
+
+							map.attr("class", "combat");
+						} else {
+
 						}
+					} else {
+						map.attr("class", "");
 					}
 				});
 			};
@@ -129,9 +176,12 @@
 
 <style>
 	svg {
-		@apply absolute inset-0;
-		transition: transform 0.8s;
-		//transform: rotateX(8deg) translate(0, 0) scale(1);
+		/*@apply absolute inset-0;*/
+		//transition: transform 0.2s;
+	}
+
+	.combat {
+		//transform: rotateX(20deg);
 	}
 
 	svg * {

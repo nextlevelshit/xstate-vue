@@ -246,7 +246,6 @@ const riskMachine = setup<Context, RiskEvent>({
 						victoryConditionCheck: {
 							always: [
 								{
-									// cond: "attackerHasWon",
 									guard: "attackerHasWon",
 									target: "fortify"
 								},
