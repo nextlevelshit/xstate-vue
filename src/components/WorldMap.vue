@@ -58,6 +58,8 @@
 					(map.node() as HTMLElement)?.append(data.documentElement);
 
 					props.territories.forEach(({territory, troops, player}) => {
+						const hasCombat = territory === props.fromTerritory || territory === props.toTerritory;
+						const hasCombatOrNoCombat = hasCombat || !(props.toTerritory && props.fromTerritory);
 						const territoryElement = d3.select(`#${territory}`);
 						const playerColor = player.color || "black";
 						player.color && territoryElement.style("fill", playerColor);
@@ -65,12 +67,17 @@
 						const middleX = bbox.x + bbox.width / 2;
 						const middleY = bbox.y + bbox.height / 2;
 
+						if (hasCombat) {
+							territoryElement.attr("class", "combat");
+						}
+
 						map.select("svg #territories")
 							.append("circle")
 							.attr("cx", middleX)
 							.attr("cy", middleY)
 							.attr("r", 16)
 							.attr("fill", playerColor)
+							.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
 							.attr("class", "troopsBackground")
 							.attr("stroke", "white");
 
@@ -78,11 +85,22 @@
 							.append("text") // Append SVG text element
 							.attr("x", middleX)
 							.attr("y", middleY)
-							.attr("fill", "white")
-							// .attr('fill', playerColor)
+							// .attr("fill", "white")
+							.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
+							.attr('fill', hasCombat ? "white" : playerColor)
 							.attr("dominant-baseline", "central")
 							.attr("class", "troops")
 							.text(troops); // Set the text content
+
+						map.select("svg #territories")
+							.append("text") // Append SVG text element
+							.attr("x", middleX)
+							.attr("y", middleY + 20)
+							.attr("fill", "black")
+							.attr("opacity", hasCombatOrNoCombat ? 1 : .2)
+							.attr("dominant-baseline", "central")
+							.attr("class", "territory")
+							.text(territory);
 
 						territoryElement.on("click", () => {
 							emit("territory-clicked", territory);
@@ -180,7 +198,8 @@
 		//transition: transform 0.2s;
 	}
 
-	.combat {
+	div.combat #territories path:not(.combat) {
+		opacity: 0.2;
 		//transform: rotateX(20deg);
 	}
 
@@ -215,7 +234,7 @@
 	}
 
 	svg #territories path:hover {
-		fill-opacity: 0.8 !important;
+		fill-opacity: 0.5 !important;
 	}
 
 	svg #continents path {
@@ -226,7 +245,7 @@
 	}
 
 	.troops {
-		font-weight: 700;
+		font-weight: 800;
 		font-size: 16px;
 		text-anchor: middle;
 		font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
@@ -236,7 +255,15 @@
 		fill: black;
 		stroke-width: 3;
 		stroke-opacity: 0.4;
-		fill-opacity: 0.7;
+		fill-opacity: 0.8;
 		mix-blend-mode: multiply;
+	}
+
+	.territory {
+		font-weight: 400;
+		font-size: 10px;
+		text-anchor: middle;
+		font-family: Teko, Helvetica, Arial, sans-serif;
+		text-transform: uppercase;
 	}
 </style>
