@@ -51,7 +51,7 @@
 				const map = d3.select("#map svg");
 
 				props.territories.forEach(({territory, troops, player}) => {
-					debugger;
+					// debugger;
 					const hasCombat = territory === props.fromTerritory || territory === props.toTerritory;
 					const hasCombatOrNoCombat = hasCombat || !(props.toTerritory && props.fromTerritory);
 					const territoryElement = map.select(`#${territory}`);

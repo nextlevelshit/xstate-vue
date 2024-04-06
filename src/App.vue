@@ -57,13 +57,13 @@
 					{{ currentPlayer.name }}
 				</div>
 				<div v-if="fromTerritory || toTerritory" class="flex gap-2 justify-center items-center">
-					<div v-if="fromTerritory" class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
+					<div v-if="fromTerritory" class="uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
 						{{ fromTerritory }}
 						<span class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
 					</div>
 					<template v-if="toTerritory">
 						<span class="text-8xl font-thin">X</span>
-						<div class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
+						<div class="uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
 							<span class="text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
 							{{ toTerritory }}
 						</div>
