@@ -1,5 +1,5 @@
 <template>
-	<div id="map" class="w-full h-full relative top-0"></div>
+	<div id="map" class="w-full h-full relative top-0 bottom-20"></div>
 </template>
 
 <script lang="ts">
