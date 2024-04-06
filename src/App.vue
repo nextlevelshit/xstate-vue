@@ -1,13 +1,29 @@
 <template>
 	<aside class="fixed bottom-20 max-w-1/2 right-20 left-20 z-10">
-		<div class="flex flex-row justify-center items-center gap-2 mb-10">
+		<div class="flex flex-col justify-center items-center gap-2 mb-10">
 			<div :class="`inline-block text-6xl font-bold text-black drop-shadow-lg`" :style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`">
 				{{currentPlayer.name}}
+			</div>
+			<div v-if="fromTerritory || toTerritory" class="flex gap-2 justify-center items-center">
+				<div v-if="fromTerritory" class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
+					{{fromTerritory}}
+					<span class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
+				</div>
+				<template v-if="toTerritory">
+					<span class="text-8xl font-thin">X</span>
+					<div  class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
+						<span class="text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
+						{{toTerritory}}
+					</div>
+				</template>
+			</div>
+			<div v-if="toTerritory" :class="`inline-block text-6xl font-bold text-black drop-shadow-lg`" :style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`">
+				{{players[ownership[toTerritory].player].name}}
 			</div>
 		</div>
 
 		<div class="flex flex-row justify-center items-center gap-2">
-			<button v-if="nextEvents.includes(RiskEventType.BACK)"
+			<button :disabled="!nextEvents.includes(RiskEventType.BACK)"
 					@click="sendEvent(RiskEventType.BACK)"
 					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white shadow-md"
 			>
@@ -231,6 +247,8 @@
 
 			const players = computed<Array<Player & {index: number}>>(() => {
 				const {ownership, players} = currentState.value.context;
+
+				if (!players) return [];
 
 				return players.map((player, index) => {
 					const territories = Object.keys(ownership).filter((territory) => ownership[territory as Territory].player === index);
