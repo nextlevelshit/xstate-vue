@@ -87,7 +87,7 @@
 							.attr("y", middleY)
 							// .attr("fill", "white")
 							.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
-							.attr('fill', hasCombat ? "white" : playerColor)
+							.attr('fill', hasCombat || troops === 0 ? "white" : playerColor)
 							.attr("dominant-baseline", "central")
 							.attr("class", "troops")
 							.text(troops); // Set the text content
@@ -202,6 +202,11 @@
 	div.combat #territories path:not(.combat) {
 		opacity: 0.2;
 		//transform: rotateX(20deg);
+	}
+
+	div.combat #continents,
+	div.combat #sea_borders {
+		opacity: 0.3;
 	}
 
 	svg * {

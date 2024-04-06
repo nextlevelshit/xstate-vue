@@ -25,7 +25,7 @@
 		<div class="flex flex-row justify-center items-center gap-2">
 			<button :disabled="!nextEvents.includes(RiskEventType.BACK)"
 					@click="sendEvent(RiskEventType.BACK)"
-					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white shadow-md"
+					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md"
 			>
 				Zurück
 			</button>
@@ -33,7 +33,7 @@
 			<template v-if="preGame">
 				<div v-for="phase in preGame"
 					 class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md"
-					 :class="[phase.isActive ? `text-white bg-black` : 'bg-white text-black opacity-80']"
+					 :class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-80']"
 				>
 					{{phase.label}}
 				</div>
@@ -72,7 +72,7 @@
 
 			<button
 				@click="sendEvent(nextEvents.includes(RiskEventType.END_TURN) ? RiskEventType.END_TURN : RiskEventType.CONTINUE)"
-				class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white shadow-md"
+				class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md"
 			>
 				Weiter
 			</button>
@@ -353,12 +353,12 @@
 					},
 				];
 
-				if (currentState.value.matches("setup.preparationComplete")) {
-					phases.push({
-						label: "Go go go!",
-						isActive: true
-					})
-				}
+				// if (currentState.value.matches("setup.preparationComplete")) {
+				// 	phases.push({
+				// 		label: "Go go go!",
+				// 		isActive: true
+				// 	})
+				// }
 				return phases;
 			});
 
