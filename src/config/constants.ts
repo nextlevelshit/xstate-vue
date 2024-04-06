@@ -98,7 +98,7 @@ export const continentBonuses: Continent[] = [
 ];
 export const allTerritories = Object.keys(Object.fromEntries(allBorders)) as Territory[];
 export const players = 6;
-export const playerColors = ["#8338ec", "#ffbe0b", "#43aa8b", "#ff006e", "#3a86ff", "#fb5607", "#BADA55"];
+export const playerColors = ["#9651fd", "#f3bd28", "#72cbaf", "#ff006e", "#3a86ff", "#fb5607", "#BADA55"];
 
 export const playerNames = ["Katharina die Große", "Julius Caesar", "Napoleon Bonaparte", "Genghis Khan", "König Tamara", "Cleopatra"];
 export const initialTroopsPerPlayer = Math.floor(allTerritories.length / players) * 4;

@@ -25,7 +25,8 @@
 		<div class="flex flex-row justify-center items-center gap-2">
 			<button :disabled="!nextEvents.includes(RiskEventType.BACK)"
 					@click="sendEvent(RiskEventType.BACK)"
-					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md"
+					:class="[nextEvents.includes(RiskEventType.BACK) ? 'cursor-pointer hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md active:translate-y-[1px] active:drop-shadow-sm' : 'cursor-not-allowed']"
+					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full"
 			>
 				Zurück
 			</button>
@@ -37,20 +38,18 @@
 				>
 					{{phase.label}}
 				</div>
-
 			</template>
 
-			<div v-else-if="game"
+			<button v-else-if="game"
 				v-for="phase in game"
-				class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-md min-h-32"
-				:class="[phase.isActive ? `text-white cursor-pointer drop-shadow-lg` : '!bg-white text-black opacity-80']"
-				 :style="`background-color: ${currentPlayer.color};`"
+				class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-lg min-h-32"
+				:class="[phase.isActive ? `text-white cursor-pointer hover:drop-shadow-xl active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8` : '!bg-white text-black opacity-80']"
+				 :style="`background-color: ${currentPlayer.color}; outline-color: ${currentPlayer.color}`"
 				 @click="(phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops >= 1) ? sendEvent(RiskEventType.MOVE) : (phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops <= 1) && sendEvent(RiskEventType.BACK)">
 
 				<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
-					<template v-if="maxAvailableTroops < 1 && currenState?.value?.matches('combat')">
+					<template v-if="maxAvailableTroops < 1 && currenState?.matches('combat')">
 						Rückzug
-
 						<span>{{maxAvailableTroops}}</span>
 					</template>
 					<template v-else>
@@ -62,17 +61,16 @@
 						/>
 						{{phase.label}}
 					</template>
-
 				</template>
 
 				<template v-else>
 					{{phase.label}}
 				</template>
-			</div>
+			</button>
 
 			<button
 				@click="sendEvent(nextEvents.includes(RiskEventType.END_TURN) ? RiskEventType.END_TURN : RiskEventType.CONTINUE)"
-				class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md"
+				class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md active:translate-y-[1px] active:drop-shadow-sm"
 			>
 				Weiter
 			</button>
@@ -321,15 +319,15 @@
 			const game = computed(() => {
 				return [
 					{
-						label: (currentPlayer.value.troopsToDeploy > 0 ? currentPlayer.value.troopsToDeploy + " " : "") + "Truppen verteilen",
+						label: "Verteilen",
 						isActive: currentState.value.matches("game.deployment")
 					},
 					{
-						label: currentState.value.matches("game.combat.fortify") ? "Truppen bewegen" : "Angreifen",
+						label: currentState.value.matches("game.combat.fortify") ? "Truppen verschieben" : "Angreifen",
 						isActive: currentState.value.matches("game.combat")
 					},
 					{
-						label: "Verschieben",
+						label: "Befestigen",
 						isActive: currentState.value.matches("game.consolidation")
 					}
 				]
