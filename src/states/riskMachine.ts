@@ -25,6 +25,7 @@ import {assignTroopsToDeploy} from "../actions/assignTroopsToDeploy.ts";
 import {selectTerritory} from "../actions/selectTerritory.ts";
 import {hasPlayerSufficientTroopsToFortify} from "../guards/hasPlayerSufficientTroopsToFortify.ts";
 import {fortifyTroops} from "../actions/fortifyTroops.ts";
+import {hasAnyTroopsToDeploy} from "../guards/hasAnyTroopsToDeploy.ts";
 
 const riskMachine = setup<Context, RiskEvent>({
 	actions: {
@@ -54,6 +55,7 @@ const riskMachine = setup<Context, RiskEvent>({
 		isTerritoryConnected,
 		hasPlayerSufficientTroopsToReinforce,
 		hasPlayerSufficientTroopsToFortify,
+		hasAnyTroopsToDeploy,
 		attackerHasWon: ({context}: { context: Context}) => {
 			const isValid = context.ownership[context.toTerritory as Territory].troops === 0;
 			console.log(">> attackerHasWon", isValid);
@@ -116,10 +118,12 @@ const riskMachine = setup<Context, RiskEvent>({
 		},
 		game: {
 			initial: "deployment",
+			// after: ["deployRemainingTroops"],
 			states: {
 				deployment: {
 					initial: "selectingTerritoryOrEndTurn",
 					entry: "assignTroopsToDeploy",
+					// after: ["deployRemainingTroops"],
 					states: {
 						selectingTerritoryOrEndTurn: {
 							entry: assign({
@@ -161,7 +165,7 @@ const riskMachine = setup<Context, RiskEvent>({
 						deploymentConditionCheck: {
 							always: [
 								{
-									guard: "hasPlayerSufficientTroopsToDeploy",
+									guard: "hasAnyTroopsToDeploy",
 									target: "selectingTerritoryOrEndTurn"
 								},
 								{

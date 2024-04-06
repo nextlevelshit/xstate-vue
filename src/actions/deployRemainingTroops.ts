@@ -13,7 +13,14 @@ export const deployRemainingTroops = assign({
 			const territory = territories[territoryIndex];
 			ownership[territory].troops++;
 		}
+		debugger;
 		console.log(">> ownership", ownership);
 		return ownership;
+	},
+	players: ({context}: {context: Context}) => {
+		const players = {...context.players};
+		players[context.currentPlayer].troopsToDeploy = 0;
+		console.log(">> players[currentPlayer]", players[context.currentPlayer]);
+		return players;
 	}
 });

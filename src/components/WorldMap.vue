@@ -95,7 +95,7 @@
 						map.select("svg #territories")
 							.append("text") // Append SVG text element
 							.attr("x", middleX)
-							.attr("y", middleY + 20)
+							.attr("y", middleY + 24)
 							.attr("fill", "black")
 							.attr("opacity", hasCombatOrNoCombat ? 1 : .2)
 							.attr("dominant-baseline", "central")
@@ -157,7 +157,7 @@
 
 							// debugger;
 
-							map.select("svg").attr("transform", `translate(${-(centerCombatX - centerX) * 2}, ${(-(centerCombatY - centerY) * 2)}) scale(2)`);
+							map.select("svg").attr("transform", `translate(${-(centerCombatX - centerX) * 2}, ${(-(centerCombatY - centerY) * 2)}) scale(1.3)`);
 
 							map.attr("class", "combat");
 						} else {
@@ -195,7 +195,8 @@
 <style>
 	svg {
 		/*@apply absolute inset-0;*/
-		//transition: transform 0.2s;
+		/*transition: transform 0.2s;*/
+		/*transform: scale(0.9);*/
 	}
 
 	div.combat #territories path:not(.combat) {
@@ -253,10 +254,10 @@
 
 	.troopsBackground {
 		fill: black;
-		stroke-width: 3;
-		stroke-opacity: 0.4;
+		stroke-width: .1;
+		stroke-opacity: 1;
 		fill-opacity: 0.8;
-		mix-blend-mode: multiply;
+		//mix-blend-mode: multiply;
 	}
 
 	.territory {

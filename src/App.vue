@@ -1,9 +1,96 @@
 <template>
+	<aside class="fixed bottom-20 max-w-1/2 right-20 left-20 z-10">
+		<div class="flex flex-row justify-center items-center gap-2 mb-10">
+			<div :class="`inline-block text-6xl font-bold text-black drop-shadow-lg`" :style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`">
+				{{currentPlayer.name}}
+			</div>
+		</div>
+
+		<div class="flex flex-row justify-center items-center gap-2">
+			<button v-if="nextEvents.includes(RiskEventType.BACK)"
+					@click="sendEvent(RiskEventType.BACK)"
+					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white shadow-md"
+			>
+				Zurück
+			</button>
+
+			<template v-if="preGame">
+				<div v-for="phase in preGame"
+					 class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md"
+					 :class="[phase.isActive ? `text-white bg-black` : 'bg-white text-black opacity-80']"
+				>
+					{{phase.label}}
+				</div>
+
+			</template>
+
+			<div v-else-if="game"
+				v-for="phase in game"
+				class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-md min-h-32"
+				:class="[phase.isActive ? `text-white cursor-pointer drop-shadow-lg` : '!bg-white text-black opacity-80']"
+				 :style="`background-color: ${currentPlayer.color};`"
+				 @click="(phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops >= 1) ? sendEvent(RiskEventType.MOVE) : (phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops <= 1) && sendEvent(RiskEventType.BACK)">
+
+				<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
+					<template v-if="maxAvailableTroops < 1 && currenState?.value?.matches('combat')">
+						Rückzug
+
+						<span>{{maxAvailableTroops}}</span>
+					</template>
+					<template v-else>
+						<TroopsStepper
+							:min="minAvailableTroops"
+							:max="maxAvailableTroops"
+							:inputValue="input"
+							@troopsSelected="input = $event"
+						/>
+						{{phase.label}}
+					</template>
+
+				</template>
+
+				<template v-else>
+					{{phase.label}}
+				</template>
+			</div>
+
+			<button
+				@click="sendEvent(nextEvents.includes(RiskEventType.END_TURN) ? RiskEventType.END_TURN : RiskEventType.CONTINUE)"
+				class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white shadow-md"
+			>
+				Weiter
+			</button>
+		</div>
+	</aside>
+
+	<aside hidden class="fixed bottom-20 w-1/2 right-20 z-10" v-if="nextEvents.includes(RiskEventType.END_TURN) || nextEvents.includes(RiskEventType.CONTINUE) || nextEvents.includes(RiskEventType.MOVE)">
+		<div class="flex gap-8 items-center justify-end text-nowrap">
+			<template v-if="nextEvents.includes(RiskEventType.MOVE)">
+				<TroopsStepper
+					:min="minAvailableTroops"
+					:max="maxAvailableTroops"
+					:inputValue="input"
+					@troopsSelected="input = $event"
+				/>
+
+				<button
+					@click="sendEvent(RiskEventType.MOVE)"
+					class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md hover:bg-black hover:text-white hover:shadow-3xl"
+				>
+					Truppen bewegen
+				</button>
+			</template>
+
+
+		</div>
+	</aside>
+
 	<main class="w-full h-screen">
+
 		<div class="flex gap-2 py-8 h-full">
-			<div class="w-1/4 relative">
-				<div class="p-8 bg-[#fffffff1] shadow-md rounded-lg absolute z-10">
-					<h1 class="text-2xl font-bold mb-4">Risk Game State Machine Monitor</h1>
+			<div class="w-1/4 relative" v-if="false">
+				<details class="p-8 bg-[#fffffff1] shadow-md rounded-lg absolute z-10">
+					<summary class="text-2xl font-bold mb-4">DEBUG</summary>
 					<div class="flex flex-col gap-4 mb-4">
 						<div class="flex gap-2 justify-between">
 							<template v-for="event in nextBasicEvents" :key="event">
@@ -18,12 +105,12 @@
 
 						<div class="flex gap-2" v-if="nextEvents.includes(RiskEventType.MOVE)">
 							<div class="w-1/2">
-								<TroopsStepper
-									:min="minAvailableTroops"
-									:max="maxAvailableTroops"
-									:inputValue="input"
-									@troopsSelected="input = $event"
-								/>
+<!--								<TroopsStepper-->
+<!--									:min="minAvailableTroops"-->
+<!--									:max="maxAvailableTroops"-->
+<!--									:inputValue="input"-->
+<!--									@troopsSelected="input = $event"-->
+<!--								/>-->
 							</div>
 							<button
 								@click="sendEvent(RiskEventType.MOVE)"
@@ -86,9 +173,9 @@
 						<summary class="cursor-pointer text-xl font-semibold mb-2">Full State:</summary>
 						<pre> {{ JSON.stringify(currentState, null, 2) }}</pre>
 					</details>
-				</div>
+				</details>
 			</div>
-			<div class="w-3/4 z-0 h-full">
+			<div class="absolute z-0 px-20 top-0 right-96 left-96 max-w-full">
 				<WorldMap
 					@territoryClicked="handleTerritoryClick"
 					:players="players"
@@ -213,6 +300,50 @@
 				return nextEvents.value.filter((event) => basicEvents.includes(event));
 			});
 
+			const game = computed(() => {
+				return [
+					{
+						label: (currentPlayer.value.troopsToDeploy > 0 ? currentPlayer.value.troopsToDeploy + " " : "") + "Truppen verteilen",
+						isActive: currentState.value.matches("game.deployment")
+					},
+					{
+						label: currentState.value.matches("game.combat.fortify") ? "Truppen bewegen" : "Angreifen",
+						isActive: currentState.value.matches("game.combat")
+					},
+					{
+						label: "Verschieben",
+						isActive: currentState.value.matches("game.consolidation")
+					}
+				]
+			});
+
+			const preGame = computed(() => {
+				if (!currentState.value.matches("setup")) return null;
+
+				const phases = [
+					{
+						label: "Erster Spieler",
+						isActive: currentState.value.matches("setup.firstPlayer")
+					},
+					{
+						label: "Territorien verteilen",
+						isActive: currentState.value.matches("setup.territoryAssignment")
+					},
+					{
+						label: "Truppen verteilen",
+						isActive: currentState.value.matches("setup.initialDeployment")
+					},
+				];
+
+				if (currentState.value.matches("setup.preparationComplete")) {
+					phases.push({
+						label: "Go go go!",
+						isActive: true
+					})
+				}
+				return phases;
+			});
+
 			const input = ref(1);
 			const sendEvent = (event: RiskEventType) => {
 				const eventData: any = {type: event};
@@ -254,7 +385,9 @@
 				basicEvents,
 				nextBasicEvents,
 				maxAvailableTroops,
-				minAvailableTroops
+				minAvailableTroops,
+				game,
+				preGame
 			};
 		}
 	};
