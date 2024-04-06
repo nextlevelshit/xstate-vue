@@ -7,4 +7,4 @@ export const fortifyTroops = ({context, event}: {context: Context; event: Select
 	context.fromTerritory = context.toTerritory;
 	context.toTerritory = null;
 	context.attackerTroops = 0;
-}
+};

@@ -1,92 +1,130 @@
 <template>
-	<main class="w-full py-20 pt-80">
+	<main class="w-full py-20 pt-80 lg:px-60">
+		<aside
+			hidden
+			class="fixed bottom-20 w-1/2 right-20 z-10"
+			v-if="
+				nextEvents.includes(RiskEventType.END_TURN) ||
+				nextEvents.includes(RiskEventType.CONTINUE) ||
+				nextEvents.includes(RiskEventType.MOVE)
+			"
+		>
+			<div class="flex gap-8 items-center justify-end text-nowrap">
+				<template v-if="nextEvents.includes(RiskEventType.MOVE)">
+					<TroopsStepper
+						:min="minAvailableTroops"
+						:max="maxAvailableTroops"
+						:inputValue="input"
+						@troopsSelected="input = $event"
+					/>
 
-	<aside hidden class="fixed bottom-20 w-1/2 right-20 z-10" v-if="nextEvents.includes(RiskEventType.END_TURN) || nextEvents.includes(RiskEventType.CONTINUE) || nextEvents.includes(RiskEventType.MOVE)">
-		<div class="flex gap-8 items-center justify-end text-nowrap">
-			<template v-if="nextEvents.includes(RiskEventType.MOVE)">
-				<TroopsStepper
-					:min="minAvailableTroops"
-					:max="maxAvailableTroops"
-					:inputValue="input"
-					@troopsSelected="input = $event"
-				/>
+					<button
+						@click="sendEvent(RiskEventType.MOVE)"
+						class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md hover:bg-black hover:text-white hover:shadow-3xl"
+					>
+						Truppen bewegen
+					</button>
+				</template>
+			</div>
+		</aside>
 
-				<button
-					@click="sendEvent(RiskEventType.MOVE)"
-					class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md hover:bg-black hover:text-white hover:shadow-3xl"
-				>
-					Truppen bewegen
-				</button>
-			</template>
-
-
+		<div>
+			<WorldMap
+				@territoryClicked="handleTerritoryClick"
+				:players="players"
+				:ownership="ownership"
+				:territories="territories"
+				:fromTerritory="fromTerritory"
+				:toTerritory="toTerritory"
+				:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
+			/>
 		</div>
-	</aside>
-
-		<WorldMap
-			@territoryClicked="handleTerritoryClick"
-			:players="players"
-			:ownership="ownership"
-			:territories="territories"
-			:fromTerritory="fromTerritory"
-			:toTerritory="toTerritory"
-			:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
-		/>
 	</main>
 
-	<aside class="sticky bottom-20 my-20 flex flex-col items-center justify-center z-10" style="perspective: 800px; perspective-origin: 50% 50%;">
-		<div class="flex flex-col items-center justify-center p-20 rounded-3xl shadow-2xl w-1/2 min-h-98" style="background: rgba(255,255,255,0.9); transform: rotateX(18deg)">
+	<aside
+		class="sticky bottom-20 my-20 flex flex-col items-center justify-center z-10"
+		style="perspective: 800px; perspective-origin: 50% 50%"
+	>
+		<div
+			class="flex flex-col items-center justify-center p-16 rounded-3xl shadow-2xl w-2/3 min-h-98"
+			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(18deg); backdrop-filter: blur(20px)"
+		>
 			<div class="flex flex-col justify-center items-center gap-2 mb-10">
-				<div :class="`inline-block text-6xl font-bold text-black drop-shadow-lg`" :style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`">
-					{{currentPlayer.name}}
+				<div
+					:class="`inline-block text-6xl font-bold text-black drop-shadow-lg`"
+					:style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`"
+				>
+					{{ currentPlayer.name }}
 				</div>
 				<div v-if="fromTerritory || toTerritory" class="flex gap-2 justify-center items-center">
 					<div v-if="fromTerritory" class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
-						{{fromTerritory}}
+						{{ fromTerritory }}
 						<span class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
 					</div>
 					<template v-if="toTerritory">
 						<span class="text-8xl font-thin">X</span>
-						<div  class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
+						<div class="uppercase font-light inline-block text-6xl text-black drop-shadow-lg">
 							<span class="text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
-							{{toTerritory}}
+							{{ toTerritory }}
 						</div>
 					</template>
 				</div>
-				<div v-if="toTerritory" :class="`inline-block text-6xl font-bold text-black drop-shadow-lg`" :style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`">
-					{{players[ownership[toTerritory].player].name}}
+				<div
+					v-if="toTerritory"
+					:class="`inline-block text-6xl font-bold text-black drop-shadow-lg`"
+					:style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`"
+				>
+					{{ players[ownership[toTerritory].player].name }}
 				</div>
 			</div>
 
 			<div class="flex flex-row justify-center items-center gap-2">
-				<button :disabled="!nextEvents.includes(RiskEventType.BACK)"
-						@click="sendEvent(RiskEventType.BACK)"
-						:class="[nextEvents.includes(RiskEventType.BACK) ? 'cursor-pointer hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md active:translate-y-[1px] active:drop-shadow-sm' : 'cursor-default pointer-events-none']"
-						class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full"
+				<button
+					:disabled="!nextEvents.includes(RiskEventType.BACK)"
+					@click="sendEvent(RiskEventType.BACK)"
+					:class="[
+						nextEvents.includes(RiskEventType.BACK)
+							? 'cursor-pointer hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md active:translate-y-[1px] active:drop-shadow-sm'
+							: 'cursor-default pointer-events-none'
+					]"
+					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full"
 				>
-					Zurück
+					<Back class="h-8" />
 				</button>
 
 				<template v-if="preGame">
-					<div v-for="phase in preGame"
-						 class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md"
-						 :class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-80']"
+					<div
+						v-for="phase in preGame"
+						class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md"
+						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-80']"
 					>
-						{{phase.label}}
+						{{ phase.label }}
 					</div>
 				</template>
 
-				<button v-else-if="game"
-						v-for="phase in game"
-						class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-sm min-h-32"
-						:class="[phase.isActive ? `text-white cursor-pointer hover:drop-shadow-lg active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8` : '!bg-white text-gray-300 opacity-80 cursor-default shadow-lg']"
-						:style="`background-color: ${currentPlayer.color}; outline-color: ${currentPlayer.color}`"
-						@click="(phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops >= 1) ? sendEvent(RiskEventType.MOVE) : (phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops <= 1) && sendEvent(RiskEventType.BACK)">
-
+				<button
+					v-else-if="game"
+					v-for="phase in game"
+					class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-sm min-h-32"
+					:class="[
+						phase.isActive
+							? `text-white cursor-pointer hover:drop-shadow-lg active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8`
+							: '!bg-white text-gray-300 opacity-80 cursor-default shadow-lg'
+					]"
+					:style="`background-color: ${currentPlayer.color}; outline-color: ${currentPlayer.color}`"
+					@click="
+						phase.isActive && nextEvents.includes(RiskEventType.MOVE) && maxAvailableTroops >= 1
+							? sendEvent(RiskEventType.MOVE)
+							: phase.isActive &&
+								nextEvents.includes(RiskEventType.MOVE) &&
+								maxAvailableTroops <= 1 &&
+								sendEvent(RiskEventType.BACK)
+					"
+				>
 					<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
 						<template v-if="maxAvailableTroops < 1 && currenState?.matches('combat')">
 							Rückzug
-							<span>{{maxAvailableTroops}}</span>
+							<span>{{ maxAvailableTroops }}</span>
 						</template>
 						<template v-else>
 							<TroopsStepper
@@ -95,12 +133,12 @@
 								:inputValue="input"
 								@troopsSelected="input = $event"
 							/>
-							{{phase.label}}
+							{{ phase.label }}
 						</template>
 					</template>
 
 					<template v-else>
-						{{phase.label}}
+						{{ phase.label }}
 					</template>
 				</button>
 
@@ -108,12 +146,11 @@
 					@click="sendEvent(nextEvents.includes(RiskEventType.END_TURN) ? RiskEventType.END_TURN : RiskEventType.CONTINUE)"
 					class="flex items-center gap-3 text-2xl font-bold p-6 rounded-full hover:bg-white opacity-90 border-4 border-transparent hover:opacity-100 hover:border-white hover:shadow-md active:translate-y-[1px] active:drop-shadow-sm"
 				>
-					Weiter
+					<Continue class="h-8" />
 				</button>
 			</div>
 		</div>
 	</aside>
-
 </template>
 
 <script lang="ts">
@@ -124,6 +161,8 @@
 	import {stateKey} from "./config/constants.ts";
 	import WorldMap from "./components/WorldMap.vue";
 	import TroopsStepper from "./components/TroopsStepper.vue";
+	import Back from "./components/Back.vue";
+	import Continue from "./components/Continue.vue";
 
 	export default {
 		name: "App",
@@ -132,7 +171,7 @@
 				return RiskEventType;
 			}
 		},
-		components: {TroopsStepper, WorldMap},
+		components: {Continue, Back, TroopsStepper, WorldMap},
 		methods: {
 			handleTerritoryClick(territory: Territory) {
 				const event = {
@@ -242,7 +281,7 @@
 						label: "Befestigen",
 						isActive: currentState.value.matches("game.consolidation")
 					}
-				]
+				];
 			});
 
 			const preGame = computed(() => {
@@ -260,7 +299,7 @@
 					{
 						label: "Truppen verteilen",
 						isActive: currentState.value.matches("setup.initialDeployment")
-					},
+					}
 				];
 
 				// if (currentState.value.matches("setup.preparationComplete")) {

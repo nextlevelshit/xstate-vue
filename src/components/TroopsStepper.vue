@@ -37,7 +37,7 @@
 			nums(): number[] {
 				const fromOne = Array.from({length: this.max}, (_, i) => i + 1);
 				// remove numbers less than min
-				return fromOne.filter(num => num >= this.min);
+				return fromOne.filter((num) => num >= this.min);
 			}
 		},
 		methods: {

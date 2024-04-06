@@ -4,4 +4,4 @@ export const hasPlayerSufficientTroopsToFortify = ({context, event}: {context: C
 	const isValid = context.fromTerritory && context.ownership[context.fromTerritory].troops > 1;
 	console.log(">> hasPlayerSufficientTroopsToFortify", isValid);
 	return isValid;
-}
+};

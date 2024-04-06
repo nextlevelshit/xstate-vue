@@ -56,7 +56,7 @@ const riskMachine = setup<Context, RiskEvent>({
 		hasPlayerSufficientTroopsToReinforce,
 		hasPlayerSufficientTroopsToFortify,
 		hasAnyTroopsToDeploy,
-		attackerHasWon: ({context}: { context: Context}) => {
+		attackerHasWon: ({context}: {context: Context}) => {
 			const isValid = context.ownership[context.toTerritory as Territory].troops === 0;
 			console.log(">> attackerHasWon", isValid);
 			return isValid;
@@ -267,11 +267,11 @@ const riskMachine = setup<Context, RiskEvent>({
 										actions: ["fortifyTroops"]
 									},
 									{
-										actions: ["ignoreClick"],
+										actions: ["ignoreClick"]
 									}
 								],
 								CONTINUE: {
-									target: "#risk.game.combat",
+									target: "#risk.game.combat"
 								}
 							}
 						}
