@@ -255,6 +255,11 @@
 	svg.combat #continents,
 	svg.combat #sea_borders {
 		opacity: 0.3;
+		transition: all 460ms ease-in;
+	}
+
+	svg:not(.combat) #territories path {
+		transition: all 260ms ease-in;
 	}
 
 	svg * {
@@ -285,12 +290,13 @@
 		stroke: #000;
 		visibility: visible;
 		mix-blend-mode: multiply;
+		transition: all 460ms ease-in;
 	}
 
 	svg:not(.combat) #territories path:hover {
 		opacity: 0.8 !important;
 		stroke-width: 2;
-		stroke-opacity: 1;
+		stroke-opacity: 0.9;
 		stroke: white;
 	}
 
@@ -306,21 +312,24 @@
 		font-size: 16px;
 		text-anchor: middle;
 		font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
+		transition: all 360ms;
 	}
 
 	.troopsBackground {
 		fill: black;
 		stroke-width: 0.1;
 		stroke-opacity: 1;
+		transition: all 360ms;
 		fill-opacity: 0.8;
 		//mix-blend-mode: multiply;
 	}
 
 	.territory {
-		font-weight: 400;
+		font-weight: 500;
 		font-size: 10px;
 		text-anchor: middle;
 		font-family: Teko, Helvetica, Arial, sans-serif;
+		transition: all 360ms;
 		text-transform: uppercase;
 	}
 </style>

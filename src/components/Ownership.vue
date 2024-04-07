@@ -40,7 +40,7 @@
 					  :y1='territory.player.index === currentPlayer.index ? 35 : 38'
 					  :y2='territory.player.index === currentPlayer.index ? 43	 : 43'
 					  :stroke='territory.player.color || "black"'
-					  :stroke-width='territory.player.index === currentPlayer.index ? 3 : 1'
+					  :stroke-width='territory.player.index === currentPlayer.index ? 3 : 2'
 					  stroke-linecap='round'
 					  stroke-linejoin='round'
 					  :stroke-opacity="1"

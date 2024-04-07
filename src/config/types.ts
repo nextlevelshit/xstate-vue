@@ -77,6 +77,10 @@ export type Player = {
 	 * Amount of troops which can be deployed to owned territories
 	 */
 	troopsToDeploy: number;
+	/**
+	 *
+	 */
+	cards: Card[];
 };
 
 /**
@@ -95,6 +99,12 @@ export interface Context {
 	players: Player[];
 	error: string;
 	attackerTroops: number;
+	leftCards: Card[];
+}
+
+export interface Card {
+	territory: Territory;
+	stars: 1| 2;
 }
 
 export interface SelectTerritoryEvent {
@@ -115,7 +125,8 @@ export enum RiskEventType {
 	GAME_OVER = "GAME_OVER",
 	MOVE = "MOVE",
 	BACK = "BACK",
-	CONTINUE = "CONTINUE"
+	CONTINUE = "CONTINUE",
+	TRADE = "TRADE"
 }
 
 export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};

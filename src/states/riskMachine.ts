@@ -1,5 +1,5 @@
 import {assign, setup} from "xstate";
-import {Territory, TerritoryOwnership, RiskEvent, Context} from "../config/types.ts";
+import {Territory, TerritoryOwnership, RiskEvent, Context, Card} from "../config/types.ts";
 import {players, allBorders, allTerritories, playerColors, playerNames} from "../config/constants.ts";
 import {isPlayerAllowedToAttack} from "../guards/isPlayerAllowedToAttack.ts";
 import {isPlayerAllowedToChooseAttacker} from "../guards/isPlayerAllowedToChooseAttacker.ts";
@@ -26,6 +26,8 @@ import {selectTerritory} from "../actions/selectTerritory.ts";
 import {hasPlayerSufficientTroopsToFortify} from "../guards/hasPlayerSufficientTroopsToFortify.ts";
 import {fortifyTroops} from "../actions/fortifyTroops.ts";
 import {hasAnyTroopsToDeploy} from "../guards/hasAnyTroopsToDeploy.ts";
+import {collectCard} from "../actions/collectCard.ts";
+import {tradeCards} from "../actions/tradeCards.ts";
 
 const riskMachine = setup<Context, RiskEvent>({
 	actions: {
@@ -44,7 +46,9 @@ const riskMachine = setup<Context, RiskEvent>({
 		deployRemainingTroops,
 		reinforceTroops,
 		setPotentialTargetTerritories,
-		fortifyTroops
+		fortifyTroops,
+		collectCard,
+		tradeCards
 	},
 	guards: {
 		isPlayerAllowedToChooseAttacker,
@@ -75,10 +79,17 @@ const riskMachine = setup<Context, RiskEvent>({
 		players: Array.from({length: players}, (_, i) => ({
 			troopsToDeploy: 0,
 			color: playerColors[i],
-			name: playerNames[i]
+			name: playerNames[i],
+			cards: [] as Card[]
 		})),
 		potentialTargetTerritories: [] as Territory[],
-		attackerTroops: 0
+		attackerTroops: 0,
+		leftCards: allTerritories.map(territory => {
+			return {
+				territory,
+				stars: Math.random() >= 0.3 ? 1 : 2
+			}
+		})
 	},
 	initial: "setup",
 	states: {
@@ -121,15 +132,35 @@ const riskMachine = setup<Context, RiskEvent>({
 			// after: ["deployRemainingTroops"],
 			states: {
 				deployment: {
-					initial: "selectingTerritoryOrEndTurn",
+					initial: "selectingTerritoryOrTradeCards",
 					entry: "assignTroopsToDeploy",
 					// after: ["deployRemainingTroops"],
 					states: {
-						selectingTerritoryOrEndTurn: {
+						selectingTerritoryOrTradeCards: {
 							entry: assign({
 								fromTerritory: null,
 								toTerritory: null
 							}),
+							on: {
+								TRADE: [
+									{
+										actions: ["tradeCards"],
+										target: "selectTerritory",
+									}
+								],
+								SELECT_TERRITORY: [
+									{
+										guard: "isPlayerAllowedToDeploy",
+										target: "deployingTroops",
+										actions: ["selectTerritory"]
+									},
+									{
+										actions: ["ignoreClick"]
+									}
+								]
+							}
+						},
+						selectTerritory: {
 							on: {
 								SELECT_TERRITORY: [
 									{
@@ -159,14 +190,14 @@ const riskMachine = setup<Context, RiskEvent>({
 										actions: ["ignoreClick"]
 									}
 								],
-								BACK: "selectingTerritoryOrEndTurn"
+								BACK: "selectingTerritoryOrTradeCards"
 							}
 						},
 						deploymentConditionCheck: {
 							always: [
 								{
 									guard: "hasAnyTroopsToDeploy",
-									target: "selectingTerritoryOrEndTurn"
+									target: "selectingTerritoryOrTradeCards"
 								},
 								{
 									target: "#risk.game.combat"
@@ -183,6 +214,7 @@ const riskMachine = setup<Context, RiskEvent>({
 				},
 				combat: {
 					initial: "selectingAttackerOrEndTurn",
+					exit: [collectCard],
 					states: {
 						selectingAttackerOrEndTurn: {
 							entry: assign({
