@@ -1,5 +1,5 @@
 <template>
-	<main class="w-full py-20 pt-80 lg:px-60">
+	<main class="w-full">
 		<aside
 			hidden
 			class="fixed bottom-20 w-1/2 right-20 z-10"
@@ -28,7 +28,6 @@
 			</div>
 		</aside>
 
-		<div>
 			<WorldMap
 				@territoryClicked="handleTerritoryClick"
 				:players="players"
@@ -38,7 +37,6 @@
 				:toTerritory="toTerritory"
 				:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
 			/>
-		</div>
 	</main>
 
 	<aside
@@ -46,10 +44,11 @@
 		style="perspective: 800px; perspective-origin: 50% 50%"
 	>
 		<div
-			class="flex flex-col items-center justify-center p-16 rounded-3xl shadow-2xl w-2/3 min-h-98"
-			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(18deg); backdrop-filter: blur(20px)"
+			class="flex flex-col justify-between p-16 rounded-3xl shadow-2xl w-2/3"
+			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(18deg); backdrop-filter: blur(20px); min-height: 20vh"
 		>
-			<div class="flex flex-col justify-center items-center gap-2 mb-10">
+			<Ownership v-if="!preGame && game" :current-player="currentPlayer" :territories="territories" class="w-48 h-48 absolute right-12 top-12"/>
+			<div class="flex flex-col justify-center items-center gap-4 mb-10">
 				<div
 					:class="`inline-block text-6xl font-bold text-black drop-shadow-lg`"
 					:style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`"
@@ -163,6 +162,7 @@
 	import TroopsStepper from "./components/TroopsStepper.vue";
 	import Back from "./components/Back.vue";
 	import Continue from "./components/Continue.vue";
+	import Ownership from "./components/Ownership.vue";
 
 	export default {
 		name: "App",
@@ -171,7 +171,7 @@
 				return RiskEventType;
 			}
 		},
-		components: {Continue, Back, TroopsStepper, WorldMap},
+		components: {Ownership, Continue, Back, TroopsStepper, WorldMap},
 		methods: {
 			handleTerritoryClick(territory: Territory) {
 				const event = {
@@ -231,7 +231,7 @@
 					const {player, troops} = currentState.value.context.ownership[territory as Territory];
 					return {
 						territory,
-						player: currentState.value.context.players[player],
+						player: players.value[player],
 						troops: troops
 					};
 				});
