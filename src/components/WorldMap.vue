@@ -194,11 +194,11 @@
 
 						// debugger;
 
-						map.attr(
-							"transform",
-							`translate(${-(centerX - deltaX * 4)}, ${-(centerY + deltaY)}) scale(1.5)`
-
-						);
+						// map.attr(
+						// 	"transform",
+						// 	`translate(${-(centerX - deltaX * 4)}, ${-(centerY + deltaY)}) scale(1.5)`
+						//
+						// );
 
 						map.attr("class", "combat");
 					} else {
