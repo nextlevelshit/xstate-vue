@@ -34,17 +34,16 @@
 	<div>
 		<div class="relative">
 			<svg viewBox='-50 -50 100 100'>
-				<circle fill="transparent" stroke="black" opacity="0.1" r='48'/>
+				<circle fill="transparent" stroke="black" opacity="0.1" r='49' stroke-width="0.4"/>
 				<!-- markers -->
 				<line v-for="(territory, i) in sortedByPlayer"
-					  class='major'
-					  :y1='territory.player.index === currentPlayer.index ? 38 : 40'
-					  :y2='territory.player.index === currentPlayer.index ? 44 : 42'
+					  :y1='territory.player.index === currentPlayer.index ? 35 : 38'
+					  :y2='territory.player.index === currentPlayer.index ? 43	 : 43'
 					  :stroke='territory.player.color || "black"'
-					  :stroke-width='territory.player.index === currentPlayer.index ? 3 : 2'
+					  :stroke-width='territory.player.index === currentPlayer.index ? 3 : 1'
 					  stroke-linecap='round'
 					  stroke-linejoin='round'
-					  :stroke-opacity='territory.player.index === currentPlayer.index ? 1 : 0.5'
+					  :stroke-opacity="1"
 					  :transform="transform(i)"
 				/>
 			</svg>

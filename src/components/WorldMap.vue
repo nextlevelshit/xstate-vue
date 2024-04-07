@@ -140,18 +140,18 @@
 						// const x = (from.x + from.width / 2) * 0.5 + (to.x + to.width / 2) * 0.5 + marginX;
 						// const y = (from.y + from.height / 2) * 0.5 + (to.y + to.height / 2) * 0.5 + marginY;
 						//
-						// const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
-						// const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
-						//
-						//
-						// const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
-						// const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
+						const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
+						const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
 
-						// const centerX = mapWidth * 0.5;
-						// const centerY = mapHeight * 0.5;
-						//
-						// const centerCombatX = ((from.x + from.width) * 0.5 + (to.x + to.width) * 0.5) * 0.5;
-						// const centerCombatY = ((from.y + from.height) * 0.5 + (to.y + to.height) * 0.5) * 0.5;
+
+						const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
+						const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
+
+						const centerX = mapWidth * 0.5;
+						const centerY = mapHeight * 0.5;
+
+						const centerCombatX = ((from.x + from.width) * 0.5 + (to.x + to.width) * 0.5) * 0.5;
+						const centerCombatY = ((from.y + from.height) * 0.5 + (to.y + to.height) * 0.5) * 0.5;
 
 						// map.append("circle")
 						// 	.attr("r", 10)
@@ -194,10 +194,11 @@
 
 						// debugger;
 
-						// map.attr(
-						// 	"transform",
-						// 	`translate(${-(centerCombatX - centerX - marginX)}, ${-(centerCombatY - centerY - marginY)}) scale(1.5)`
-						// );
+						map.attr(
+							"transform",
+							`translate(${-(centerX - deltaX * 4)}, ${-(centerY + deltaY)}) scale(1.5)`
+
+						);
 
 						map.attr("class", "combat");
 					} else {
@@ -242,8 +243,8 @@
 <style>
 	svg {
 		/*@apply absolute inset-0;*/
-		/*transition: transform 0.2s;*/
-		/*transform: scale(0.9);*/
+		//transition: transform 140ms;
+		//transform: scale(0.9);
 		//overflow: hidden;
 	}
 

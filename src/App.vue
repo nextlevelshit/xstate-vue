@@ -125,7 +125,7 @@
 					:class="[
 						phase.isActive
 							? `text-white cursor-pointer hover:drop-shadow-lg active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8`
-							: '!bg-white text-gray-300 opacity-80 cursor-default shadow-lg'
+							: '!bg-white text-gray-300 opacity-40 cursor-default shadow-lg'
 					]"
 					:style="`background-color: ${currentPlayer.color}; outline-color: ${currentPlayer.color}`"
 					@click="
