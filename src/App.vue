@@ -49,32 +49,49 @@
 		>
 			<Ownership v-if="!preGame && game" :current-player="currentPlayer" :territories="territories" class="w-48 h-48 absolute right-12 top-12"/>
 			<div class="flex flex-col justify-center items-center gap-4 mb-10">
-				<div
-					:class="`inline-block text-6xl font-bold text-black drop-shadow-lg`"
-					:style="`border-bottom: 5px solid ${currentPlayer.color}; mix-blend-mode: multiply`"
-				>
-					{{ currentPlayer.name }}
+				<div class="flex justify-center items-center text-nowrap w-full gap-8">
+					<div
+						class="text-6xl font-bold text-black drop-shadow-sm"
+						:class="[(toTerritory && ownership[toTerritory].troops > 0) && ownership[toTerritory].player !== ownership[fromTerritory].player ? 'text-right w-1/2' : '']"
+						:style="`text-decoration: underline ${currentPlayer.color} 5px;`"
+					>
+						{{ currentPlayer.name }}
+					</div>
+					<template v-if="(toTerritory && ownership[toTerritory].troops > 0) && ownership[toTerritory].player !== ownership[fromTerritory].player">
+						<div
+							class="text-6xl font-bold text-black drop-shadow-sm w-1/2"
+							:style="`text-decoration: underline ${players[ownership[toTerritory].player].color} 5px;`"
+						>
+							{{ players[ownership[toTerritory].player].name }}
+						</div>
+					</template>
 				</div>
 				<div v-if="fromTerritory || toTerritory" class="flex gap-2 justify-center items-center">
-					<div v-if="fromTerritory" class="uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
+					<div v-if="fromTerritory" class="flex justify-center items-center gap-3 uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
 						{{ fromTerritory }}
-						<span class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
+						<span v-if="!toTerritory || toTerritory && ownership[toTerritory].player !== ownership[fromTerritory].player || (toTerritory && ownership[toTerritory].troops > 0)" class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
 					</div>
-					<template v-if="toTerritory">
-						<span class="text-8xl font-thin">X</span>
-						<div class="uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
+					<template v-if="toTerritory && ownership[toTerritory].troops > 0">
+						<span v-if="ownership[toTerritory].player !== ownership[fromTerritory].player" class="text-8xl font-thin">X</span>
+						<Continue v-else class="w-8 h-8" />
+						<div class="flex justify-center items-center gap-3 uppercase font-light text-4xl text-black drop-shadow-lg">
 							<span class="text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
 							{{ toTerritory }}
 						</div>
 					</template>
+					<template v-else-if="toTerritory">
+						<div class="inline-block uppercase font-semibold text-4xl text-black drop-shadow-lg">
+							gewinnt
+						</div>
+					</template>
 				</div>
-				<div
-					v-if="toTerritory"
-					:class="`inline-block text-6xl font-bold text-black drop-shadow-lg`"
-					:style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`"
-				>
-					{{ players[ownership[toTerritory].player].name }}
-				</div>
+<!--				<div-->
+<!--					v-if="toTerritory && toTerritory && ownership[toTerritory].troops > 0 && ownership[toTerritory].player !== ownership[fromTerritory].player"-->
+<!--					:class="`inline-block text-4xl font-bold text-black drop-shadow-md`"-->
+<!--					:style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`"-->
+<!--				>-->
+<!--					{{ players[ownership[toTerritory].player].name }}-->
+<!--				</div>-->
 			</div>
 
 			<div class="flex flex-row justify-center items-center gap-2">
