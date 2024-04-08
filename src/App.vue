@@ -11,7 +11,7 @@
 	</main>
 
 	<aside
-		class="lg:sticky absolute bottom-10 max-md:left-2 max-md:right-2 lg:bottom-20 lg:my-20 flex flex-col items-center justify-center z-10 gap-4"
+		class="lg:sticky absolute bottom-10 max-md:left-2 max-md:right-2 lg:bottom-8 lg:my-20 flex flex-col items-center justify-center z-10 gap-4"
 		style="perspective: 800px; perspective-origin: 50% 50%"
 	>
 		<div
@@ -22,14 +22,14 @@
 				v-if="!preGame && game"
 				:current-player="currentPlayer"
 				:territories="territories"
-				class="w-16 lg:w-60 absolute left-3 lg:left-12 bottom-auto top-4 lg:top-auto lg:bottom-20"
+				class="w-16 lg:w-60 absolute left-3 lg:left-12 bottom-auto top-4 lg:top-auto lg:bottom-8"
 			/>
 
 			<button
 				:class="[currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
 				@click="currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
 				v-if="currentPlayer?.cards"
-				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-auto lg:bottom-20 text-xl lg:text-5xl font-bold p-1 lg:p-4 px-4 lg:px-8 rounded-full"
+				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-14 text-xl lg:text-5xl font-bold p-1 lg:p-4 px-4 lg:px-8 rounded-full"
 			>
 				{{ currentPlayer?.cards.reduce((acc, cur) => acc + cur?.stars, 0) }}
 				<svg
@@ -53,7 +53,7 @@
 			<div class="flex flex-col justify-center items-center gap-10 lg:gap-4 mb-2 lg:mb-10">
 				<div class="flex justify-center items-center text-nowrap w-full lg:gap-8">
 					<div
-						class="text-lg lg:text-6xl font-bold text-black drop-shadow lg:drop-shadow-sm"
+						class="text-lg lg:text-5xl font-bold text-black drop-shadow lg:drop-shadow-sm"
 						:class="[
 							toTerritory &&
 							ownership[toTerritory].troops > 0 &&
@@ -73,7 +73,7 @@
 						"
 					>
 						<div
-							class="text-lg lg:text-6xl font-bold text-black drop-shadow-sm w-1/2"
+							class="text-lg lg:text-5xl font-bold text-black drop-shadow-sm w-1/2"
 							:style="`text-decoration: underline ${players[ownership[toTerritory].player].color} 3px;`"
 						>
 							{{ players[ownership[toTerritory].player].name }}
@@ -92,7 +92,7 @@
 								(toTerritory && ownership[toTerritory].player !== ownership[fromTerritory].player) ||
 								(toTerritory && ownership[toTerritory].troops > 0)
 							"
-							class="text-2xl lg:text-6xl font-semibold"
+							class="text-2xl lg:text-5xl font-semibold"
 						>{{ ownership[fromTerritory].troops }}</span
 						>
 					</div>
@@ -102,7 +102,7 @@
 						<Continue v-else class="w-3 h-3 lg:w-8 lg:h-8" />
 						<div
 							class="flex justify-center items-center gap-2 lg:gap-3 uppercase font-light text-sm lg:text-4xl text-black drop-shadow-lg">
-							<span class="text-2xl lg:text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
+							<span class="text-2xl lg:text-5xl font-semibold">{{ ownership[toTerritory].troops }}</span>
 							{{ toTerritory }}
 						</div>
 					</template>
@@ -115,7 +115,7 @@
 				</div>
 			</div>
 
-			<div class="flex lg:flex-row justify-center items-center gap-2">
+			<div class="flex flex-row justify-center items-center gap-2">
 				<button
 					:disabled="!nextEvents.includes(RiskEventType.BACK)"
 					@click="sendEvent(RiskEventType.BACK)"
@@ -132,7 +132,7 @@
 				<template v-if="preGame">
 					<button
 						v-for="phase in preGame"
-						class="flex items-center gap-2 lg:gap-3 text-md lg:text-2xl font-bold p-2 lg:p-7 rounded-lg bg-white shadow-sm min-h-16 lg:min-h-32"
+						class="flex items-center text-nowrap gap-2 lg:gap-3 text-md lg:text-xl font-bold p-2 lg:p-3 rounded-lg bg-white shadow-sm min-h-16 lg:min-h-24"
 						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-20 max-md:hidden']"
 						@click="
             phase.isActive && nextEvents.includes(RiskEventType.MOVE)
@@ -151,10 +151,10 @@
 				<button
 					v-else-if="game"
 					v-for="phase in game"
-					class="items-center gap-3 text-xl lg:text-2xl font-bold p-4 lg:p-7 rounded-lg bg-white shadow-sm lg:min-h-32"
+					class="text-nowrap items-center gap-3 text-xl lg:text-xl font-bold p-2 lg:p-3 rounded-lg bg-white shadow-sm lg:min-h-24"
 					:class="[
 						phase.isActive
-							? `lg:flex text-white cursor-pointer hover:drop-shadow-lg active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8`
+							? `flex text-white cursor-pointer hover:drop-shadow-lg active:translate-y-[1px] active:drop-shadow-sm hover:outline-current outline-opacity-20 hover:outline-8`
 							: '!bg-white text-gray-300 opacity-40 cursor-default shadow-lg max-md:hidden'
 					]"
 					:style="`background-color: ${currentPlayer.color}; outline-color: ${currentPlayer.color}`"
@@ -323,7 +323,7 @@
 						isActive: currentState.value.matches({game: "deployment"})
 					},
 					{
-						label: currentState.value.matches({game: {combat: "fortify"}}) ? "Truppen verschieben" : "Angreifen",
+						label: currentState.value.matches({game: {combat: "fortify"}}) ? "verschieben" : "Angreifen",
 						isActive: currentState.value.matches({game: "combat"})
 					},
 					{

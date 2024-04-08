@@ -1,5 +1,5 @@
 <template>
-	<div class="flex lg:max-w-48 overflow-x-auto gap-2 no-scrollbar h-full lg:p-4 bg-white rounded-full">
+	<div class="flex max-w-28 lg:max-w-48 overflow-x-auto gap-2 no-scrollbar h-full p-2 bg-white rounded-full">
 		<button
 			v-for="num in nums"
 			:key="num"
