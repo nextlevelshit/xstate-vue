@@ -34,7 +34,7 @@
 		methods: {},
 		setup(props, {emit}) {
 			const bootstrapMap = () => {
-				d3.xml("/map5.svg").then((data: any) => {
+				d3.xml("map5.svg").then((data: any) => {
 					d3.select("#map svg").remove();
 					const map = d3.select("#map");
 
