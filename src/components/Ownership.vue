@@ -6,11 +6,11 @@
 		name: "Ownership",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player;}[]>,
+				type: Array as PropType<{territory: Territory; player: Player & { index: number; };}[]>,
 				required: true
 			},
 			currentPlayer: {
-				type: Object as PropType<Player>,
+				type: Object as PropType<Player & { index: number; }>,
 				required: false,
 				default: 0
 			}
@@ -37,13 +37,13 @@
 				<circle fill="transparent" stroke="black" opacity="0.1" r='49' stroke-width="0.4"/>
 				<!-- markers -->
 				<line v-for="(territory, i) in sortedByPlayer"
-					  :y1='territory.player.index === currentPlayer.index ? 35 : 38'
-					  :y2='territory.player.index === currentPlayer.index ? 43	 : 43'
+					  :y1='territory.player.index === currentPlayer.index ? 36 : 38'
+					  :y2='territory.player.index === currentPlayer.index ? 44	 : 43'
 					  :stroke='territory.player.color || "black"'
-					  :stroke-width='territory.player.index === currentPlayer.index ? 3 : 2'
+					  :stroke-width='4'
 					  stroke-linecap='round'
 					  stroke-linejoin='round'
-					  :stroke-opacity="1"
+					  :stroke-opacity="territory.player.index === currentPlayer.index ? 1 : 0.3"
 					  :transform="transform(i)"
 				/>
 			</svg>

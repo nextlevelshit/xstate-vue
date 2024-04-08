@@ -54,7 +54,7 @@
 				:class="[currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') ? 'bg-black text-white' : '']"
 				@click="currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') && send({type: RiskEventType.TRADE })"
 				v-if="currentPlayer?.cards" class="flex gap-4 absolute right-12 bottom-20 text-5xl font-bold p-4 px-8 rounded-full">
-				{{ currentPlayer?.cards.reduce((acc, cur) => (acc + cur.stars), 0) }}
+				{{ currentPlayer.cards.reduce((acc, cur) => (acc + cur?.stars), 0) }}
 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-12 h-12"
 					 height="100%" width="100%" version="1.1" id="Capa_1" viewBox="0 0 473.486 473.486"
 									 xml:space="preserve">
@@ -62,7 +62,7 @@
 					fill="currentColor"
 					points="473.486,182.079 310.615,157.952 235.904,11.23 162.628,158.675 0,184.389 117.584,299.641 91.786,462.257   237.732,386.042 384.416,460.829 357.032,298.473 " />
 				</svg>
-				<span v-if="false && 	currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light">einlösen</span>
+				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light">einlösen</span>
 			</button>
 
 			<div class="flex flex-col justify-center items-center gap-4 mb-10">

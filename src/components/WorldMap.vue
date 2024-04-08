@@ -11,7 +11,7 @@
 		name: "WorldMap",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player; troops: number}[]>,
+				type: Array as PropType<{territory: Territory; player: Player; troops: number; index: number;}[]>,
 				required: true
 			},
 			colors: {

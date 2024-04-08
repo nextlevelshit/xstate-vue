@@ -104,7 +104,7 @@ export interface Context {
 
 export interface Card {
 	territory: Territory;
-	stars: 1| 2;
+	stars: 1 | 2;
 }
 
 export interface SelectTerritoryEvent {
