@@ -1,9 +1,9 @@
 import {assign} from "xstate";
-import {players} from "../config/constants.ts";
+import {Context} from "../config/types.ts";
 
 export const assignFirstPlayer = assign({
-	currentPlayer: () => {
-		const player = Math.floor(Math.random() * players);
+	currentPlayer: ({context}: {context: Context}) => {
+		const player = Math.floor(Math.random() * context.players.length);
 		console.log(">> currentPlayer", player);
 		return player;
 	}

@@ -1,5 +1,14 @@
 import {assign, setup} from "xstate";
-import {Territory, TerritoryOwnership, RiskEvent, Context, Card} from "../config/types.ts";
+import {
+	Territory,
+	TerritoryOwnership,
+	RiskEvent,
+	Context,
+	Card,
+	Player,
+	RiskEventType,
+	SelectTroopsEvent
+} from "../config/types.ts";
 import {players, allBorders, allTerritories, playerColors, playerNames} from "../config/constants.ts";
 import {isPlayerAllowedToAttack} from "../guards/isPlayerAllowedToAttack.ts";
 import {isPlayerAllowedToChooseAttacker} from "../guards/isPlayerAllowedToChooseAttacker.ts";
@@ -76,12 +85,7 @@ const riskMachine = setup<Context, RiskEvent>({
 		toTerritory: null,
 		allBorders,
 		allTerritories,
-		players: Array.from({length: players}, (_, i) => ({
-			troopsToDeploy: 0,
-			color: playerColors[i],
-			name: playerNames[i],
-			cards: [] as Card[]
-		})),
+		players: [] as Player[],
 		potentialTargetTerritories: [] as Territory[],
 		attackerTroops: 0,
 		leftCards: allTerritories.map(territory => {
@@ -94,8 +98,27 @@ const riskMachine = setup<Context, RiskEvent>({
 	initial: "setup",
 	states: {
 		setup: {
-			initial: "firstPlayer",
+			initial: "selectPlayers",
 			states: {
+				selectPlayers: {
+					on: {
+						[RiskEventType.MOVE]: {
+							target: "firstPlayer",
+							actions: assign({
+								players: ({event}: {event: RiskEvent}) => {
+									if (RiskEventType.MOVE !== event.type) throw new Error("Invalid event type");
+
+									return Array.from({length: event.troops || 2}, (_, i) => ({
+										troopsToDeploy: 0,
+										color: playerColors[i],
+										name: playerNames[i],
+										cards: [] as Card[]
+									}))
+								}
+							})
+						}
+					}
+				},
 				firstPlayer: {
 					on: {
 						CONTINUE: {

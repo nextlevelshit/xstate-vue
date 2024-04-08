@@ -132,13 +132,23 @@
 				</button>
 
 				<template v-if="preGame">
-					<div
+					<button
 						v-for="phase in preGame"
-						class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md"
-						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-80']"
+						class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-sm min-h-32"
+						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-20']"
+						@click="(phase.isActive && nextEvents.includes(RiskEventType.MOVE)) ? sendEvent(RiskEventType.MOVE) : sendEvent(RiskEventType.CONTINUE)"
 					>
-						{{ phase.label }}
-					</div>
+						<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
+								<TroopsStepper
+									:min="2"
+									:max="6"
+									:inputValue="input"
+									@troopsSelected="input = $event"
+								/>
+								{{ phase.label }}
+						</template>
+						<template v-else>{{ phase.label }}</template>
+					</button>
 				</template>
 
 				<button
@@ -326,16 +336,24 @@
 
 				const phases = [
 					{
+						label: "Anzahl Spieler",
+						isActive: currentState.value.matches("setup.selectPlayers")
+					},
+					{
 						label: "Erster Spieler",
 						isActive: currentState.value.matches("setup.firstPlayer")
 					},
 					{
-						label: "Territorien verteilen",
+						label: "Territorien",
 						isActive: currentState.value.matches("setup.territoryAssignment")
 					},
 					{
-						label: "Truppen verteilen",
+						label: "Truppen",
 						isActive: currentState.value.matches("setup.initialDeployment")
+					},
+					{
+						label: "START",
+						isActive: currentState.value.matches("setup.preparationComplete")
 					}
 				];
 
@@ -372,6 +390,26 @@
 					window.location.reload();
 				}
 			};
+
+			window.addEventListener("keydown", (event) => {
+				switch(event.code) {
+					case "Escape":
+						reset();
+						break;
+					case "ArrowRight":
+						if (basicEvents.includes(RiskEventType.END_TURN)) {
+							sendEvent(RiskEventType.END_TURN);
+						} else if (basicEvents.includes(RiskEventType.CONTINUE)) {
+							sendEvent(RiskEventType.CONTINUE);
+						}
+						break;
+					case "ArrowLeft":
+						sendEvent(RiskEventType.BACK);
+						break;
+					case "Enter":
+						sendEvent(RiskEventType.MOVE);
+				}
+			});
 
 			return {
 				currentState,

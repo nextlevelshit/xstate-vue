@@ -129,7 +129,7 @@ export enum RiskEventType {
 	TRADE = "TRADE"
 }
 
-export type RiskEvent = SelectTerritoryEvent | SelectTroopsEvent | {type: RiskEventType};
+export type RiskEvent = {type: RiskEventType; territory?: Territory; troops?: number};
 
 export type RiskGuard<T> = {
 	context: Context;
