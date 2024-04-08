@@ -229,10 +229,6 @@
 
 <style>
 	svg {
-		/*@apply absolute inset-0;*/
-		//transition: transform 140ms;
-		//transform: scale(0.9);
-		//overflow: hidden;
 	}
 
 	svg.combat #territories path:not(.combat) {
@@ -308,7 +304,6 @@
 		stroke-opacity: 1;
 		transition: all 360ms;
 		fill-opacity: 0.8;
-		//mix-blend-mode: multiply;
 	}
 
 	.territory {
