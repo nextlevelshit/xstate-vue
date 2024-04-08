@@ -1,5 +1,5 @@
 <template>
-	<div id="map" class="w-full h-full overflow-hidden"></div>
+	<div id="map" class="w-full h-full lg:overflow-hidden"></div>
 </template>
 
 <script lang="ts">
