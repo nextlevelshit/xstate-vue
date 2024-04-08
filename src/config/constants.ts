@@ -100,7 +100,7 @@ export const allTerritories = Object.keys(Object.fromEntries(allBorders)) as Ter
 export const players = 4;
 export const playerColors = ["#9651fd", "#f3bd28", "#72cbaf", "#ff006e", "#3a86ff", "#fb5607", "#BADA55"];
 
-export const playerNames = ["Katharina die Große", "Julius Caesar", "Napoleon Bonaparte", "Genghis Khan", "König Tamara", "Cleopatra"];
+export const playerNames = ["Katharina d. Große", "Caesar", "Napoleon", "Genghis Khan", "König Tamara", "Cleopatra"];
 export const initialTroopsPerPlayer = Math.floor(allTerritories.length / players) * 4;
 
 export const diceInterval: Interval = [1, 6];
