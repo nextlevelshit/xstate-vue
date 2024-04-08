@@ -54,8 +54,8 @@
 			/>
 
 			<button
-				:class="[currentState?.matches({game: { deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
-				@click="currentState?.matches({game: { deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
+				:class="[currentState?.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
+				@click="currentState?.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
 				v-if="currentPlayer?.cards"
 				class="flex gap-4 absolute right-12 bottom-20 text-5xl font-bold p-4 px-8 rounded-full"
 			>
@@ -76,9 +76,9 @@
 						points="473.486,182.079 310.615,157.952 235.904,11.23 162.628,158.675 0,184.389 117.584,299.641 91.786,462.257   237.732,386.042 384.416,460.829 357.032,298.473 "
 					/>
 				</svg>
-<!--				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light"-->
-<!--					>einlösen</span-->
-<!--				>-->
+				<!--				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light"-->
+				<!--					>einlösen</span-->
+				<!--				>-->
 			</button>
 
 			<div class="flex flex-col justify-center items-center gap-4 mb-10">
@@ -201,9 +201,7 @@
 					"
 				>
 					<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
-						<template v-if="maxAvailableTroops < 1 && currentState?.matches({game: 'combat'})">
-							Rückzug
-						</template>
+						<template v-if="maxAvailableTroops < 1 && currentState?.matches({game: 'combat'})"> Rückzug </template>
 						<template v-else>
 							<TroopsStepper
 								:min="minAvailableTroops"
@@ -274,7 +272,7 @@
 			const fromTerritory = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
 			const toTerritory = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
 
-			const players = computed<Array<Player & {index: number; troops: number; }>>(() => {
+			const players = computed<Array<Player & {index: number; troops: number}>>(() => {
 				const {ownership, players} = currentState.value.context;
 
 				if (!players) return [];
@@ -315,14 +313,14 @@
 			});
 
 			const minAvailableTroops = computed<number>(() => {
-				if (currentState.value.matches({game: { combat: "fortify" }})) {
+				if (currentState.value.matches({game: {combat: "fortify"}})) {
 					return Math.min(ownership.value[fromTerritory.value].troops - 1, currentState.value.context.attackerTroops);
 				}
 				return 1;
 			});
 
 			const maxAvailableTroops = computed<number>(() => {
-				if (currentState.value.matches({game: { combat: "fortify" }})) {
+				if (currentState.value.matches({game: {combat: "fortify"}})) {
 					return ownership.value[fromTerritory.value].troops - 1;
 				} else if (currentState.value.matches({game: "deployment"})) {
 					return currentPlayer.value.troopsToDeploy;
@@ -348,11 +346,12 @@
 				return [
 					{
 						label:
-							(currentState.value.matches({game: "deployment"}) ? currentPlayer.value.troopsToDeploy + " " : "") + "Verteilen",
+							(currentState.value.matches({game: "deployment"}) ? currentPlayer.value.troopsToDeploy + " " : "") +
+							"Verteilen",
 						isActive: currentState.value.matches({game: "deployment"})
 					},
 					{
-						label: currentState.value.matches({game: { combat: "fortify" }}) ? "Truppen verschieben" : "Angreifen",
+						label: currentState.value.matches({game: {combat: "fortify"}}) ? "Truppen verschieben" : "Angreifen",
 						isActive: currentState.value.matches({game: "combat"})
 					},
 					{

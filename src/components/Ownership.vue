@@ -10,7 +10,7 @@
 				required: true
 			},
 			currentPlayer: {
-				type: Object as PropType<Player & {index: number; troops: number;}>,
+				type: Object as PropType<Player & {index: number; troops: number}>,
 				required: false,
 				default: 0
 			}

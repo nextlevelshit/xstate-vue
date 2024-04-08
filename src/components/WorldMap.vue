@@ -11,7 +11,7 @@
 		name: "WorldMap",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player; troops?: number;}[]>,
+				type: Array as PropType<{territory: Territory; player: Player; troops?: number}[]>,
 				required: true
 			},
 			players: {
@@ -216,11 +216,9 @@
 
 			onMounted(bootstrapMap);
 
-			watch(
-				() => [props.territories, props.players, props.ownership, props.fromTerritory, props.toTerritory],
-				renderMap,
-				{deep: true}
-			);
+			watch(() => [props.territories, props.players, props.ownership, props.fromTerritory, props.toTerritory], renderMap, {
+				deep: true
+			});
 			// watch(() => [props.fromTerritory, props.toTerritory], ([from, to]) => {
 			// 	if (!(from && to)) return;
 			// 	zoomTo([from, to]);
