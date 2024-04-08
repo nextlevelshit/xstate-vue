@@ -1,5 +1,5 @@
 <template>
-	<main class="w-full max-md:mt-32">
+	<main class="w-full max-md:h-screen max-md:overflow-scroll max-md:mb-60">
 		<WorldMap
 			@territoryClicked="handleTerritoryClick"
 			:players="players"
@@ -11,12 +11,12 @@
 	</main>
 
 	<aside
-		class="lg:sticky absolute bottom-10 max-md:left-2 max-md:right-2 lg:bottom-8 lg:my-20 flex flex-col items-center justify-center z-10 gap-4"
+		class="lg:sticky fixed bottom-3 max-md:left-2 max-md:right-2 lg:bottom-8 lg:my-20 flex flex-col items-center justify-center z-10 gap-4"
 		style="perspective: 800px; perspective-origin: 50% 50%"
 	>
 		<div
 			class="flex flex-col justify-between p-4 lg:p-6 rounded-2xl lg:rounded-full shadow-2xl w-full lg:w-2/3"
-			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 19rem"
+			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 18rem"
 		>
 			<Ownership
 				v-if="!preGame && game"
@@ -432,4 +432,9 @@
 
 <style>
 	/* No additional styles needed */
+	@media (max-width: 768px) {
+		svg#svg1 {
+			width: 300vw;
+		}
+	}
 </style>
