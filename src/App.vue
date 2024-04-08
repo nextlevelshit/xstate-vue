@@ -1,33 +1,5 @@
 <template>
 	<main class="w-full">
-		<aside
-			hidden
-			class="fixed bottom-20 w-1/2 right-20 z-10"
-			v-if="
-				nextEvents.includes(RiskEventType.END_TURN) ||
-				nextEvents.includes(RiskEventType.CONTINUE) ||
-				nextEvents.includes(RiskEventType.MOVE)
-			"
-		>
-			<div class="flex gap-8 items-center justify-end text-nowrap">
-				<template v-if="nextEvents.includes(RiskEventType.MOVE)">
-					<TroopsStepper
-						:min="minAvailableTroops"
-						:max="maxAvailableTroops"
-						:inputValue="input"
-						@troopsSelected="input = $event"
-					/>
-
-					<button
-						@click="sendEvent(RiskEventType.MOVE)"
-						class="block text-2xl font-bold p-7 rounded-lg bg-white shadow-md hover:bg-black hover:text-white hover:shadow-3xl"
-					>
-						Truppen bewegen
-					</button>
-				</template>
-			</div>
-		</aside>
-
 		<WorldMap
 			@territoryClicked="handleTerritoryClick"
 			:players="players"
@@ -50,7 +22,7 @@
 				v-if="!preGame && game"
 				:current-player="currentPlayer"
 				:territories="territories"
-				class="w-60 w-60 absolute left-12 bottom-20"
+				class="w-60 h-60 absolute left-12 bottom-20"
 			/>
 
 			<button
@@ -139,13 +111,6 @@
 						<div class="inline-block uppercase font-semibold text-4xl text-black drop-shadow-lg">gewinnt</div>
 					</template>
 				</div>
-				<!--				<div-->
-				<!--					v-if="toTerritory && toTerritory && ownership[toTerritory].troops > 0 && ownership[toTerritory].player !== ownership[fromTerritory].player"-->
-				<!--					:class="`inline-block text-4xl font-bold text-black drop-shadow-md`"-->
-				<!--					:style="`border-bottom: 5px solid ${players[ownership[toTerritory].player].color}; mix-blend-mode: multiply`"-->
-				<!--				>-->
-				<!--					{{ players[ownership[toTerritory].player].name }}-->
-				<!--				</div>-->
 			</div>
 
 			<div class="flex flex-row justify-center items-center gap-2">
