@@ -1,11 +1,11 @@
 <template>
-	<div class="flex max-w-48 overflow-x-auto gap-2 no-scrollbar h-full p-4 bg-white rounded-full">
+	<div class="flex lg:max-w-48 overflow-x-auto gap-2 no-scrollbar h-full lg:p-4 bg-white rounded-full">
 		<button
 			v-for="num in nums"
 			:key="num"
 			@click="selectTroops(num)"
 			:class="[
-				'bg-white text-2xl font-semibold text-black hover:bg-black hover:text-white hover:shadow-3xl rounded-full min-w-12 h-12 drop-shadow-sm flex items-center justify-center',
+				'bg-white text-md lg:text-2xl font-semibold text-black hover:bg-black hover:text-white hover:shadow-3xl rounded-full min-w-6 lg:min-w-12 h-6 lg:h-12 drop-shadow-sm flex items-center justify-center',
 				num === inputValue ? '!bg-black !text-white' : ''
 			]"
 		>

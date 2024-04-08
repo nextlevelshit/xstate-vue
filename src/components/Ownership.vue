@@ -50,7 +50,7 @@
 			</svg>
 			<i
 				:style="`color: ${currentPlayer.color}`"
-				class="absolute top-0 bottom-0 flex items-center justify-center font-bold text-6xl w-full"
+				class="absolute top-0 bottom-0 flex items-center justify-center font-bold lg:text-6xl w-full"
 				>{{ currentPlayer.troops }}</i
 			>
 		</div>
