@@ -11,7 +11,7 @@
 		name: "WorldMap",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player; troops: number; index: number;}[]>,
+				type: Array as PropType<{territory: Territory; player: Player; troops: number; index: number}[]>,
 				required: true
 			},
 			colors: {
@@ -44,9 +44,7 @@
 
 					(map.node() as HTMLElement)?.append(data.documentElement);
 
-
 					props.territories.forEach(({territory}) => {
-
 						// Add click event listener to each territory
 						const territoryElement = map.select(`#${territory}`);
 
@@ -87,7 +85,6 @@
 							.attr("class", "territory");
 					});
 
-
 					renderMap();
 				});
 			};
@@ -110,7 +107,7 @@
 
 					map.select(`svg #territories #${territory}-circle`)
 						.attr("fill", playerColor)
-						.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
+						.attr("opacity", hasCombatOrNoCombat ? 1 : 0);
 
 					map.select(`svg #territories #${territory}-troops`)
 						.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
@@ -142,7 +139,6 @@
 						//
 						const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
 						const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
-
 
 						const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
 						const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
@@ -206,10 +202,7 @@
 				} else {
 					map.attr("class", "");
 
-					map.attr(
-						"transform",
-						`translate(0, 0) scale(1)`
-					);
+					map.attr("transform", `translate(0, 0) scale(1)`);
 				}
 			};
 

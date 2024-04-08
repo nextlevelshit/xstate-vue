@@ -1,8 +1,9 @@
 import {assign} from "xstate";
-import {Context} from "../config/types.ts";
+import {Context, RiskEvent} from "../config/types.ts";
+import type {EventObject} from "xstate";
 
-export const incrementCurrentPlayer = assign({
-	currentPlayer: ({context}: {context: Context}) => {
+export const incrementCurrentPlayer = assign<Context, RiskEvent, any, EventObject, never>({
+	currentPlayer: ({context}) => {
 		console.log(">> currentPlayer", context.currentPlayer);
 		// check if player has territories left
 		const countTerritories = (p: number) => Object.values(context.ownership).filter(({player}) => player === p).length;

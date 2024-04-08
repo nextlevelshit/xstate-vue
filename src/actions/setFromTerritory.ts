@@ -1,9 +1,10 @@
 import {assign} from "xstate";
-import {SelectTerritoryEvent} from "../config/types.ts";
+import {Territory, Context, RiskEvent} from "../config/types.ts";
+import type {EventObject} from "xstate";
 
-export const setFromTerritory = assign({
-	fromTerritory: ({event}: {event: SelectTerritoryEvent}) => {
-		console.log(">> attacker", event.territory);
-		return event.territory;
+export const setFromTerritory = assign<Context, RiskEvent, any, EventObject, never>({
+	fromTerritory: ({event}) => {
+		console.log(">> tromTerritory", event.territory);
+		return event.territory as Territory;
 	}
 });

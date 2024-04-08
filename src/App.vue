@@ -47,35 +47,63 @@
 			class="flex flex-col justify-between p-16 rounded-3xl shadow-2xl w-2/3"
 			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 20vh"
 		>
-			<Ownership v-if="!preGame && game" :current-player="currentPlayer" :territories="territories"
-					   class="w-60 w-60 absolute left-12 bottom-20" />
+			<Ownership
+				v-if="!preGame && game"
+				:current-player="currentPlayer"
+				:territories="territories"
+				class="w-60 w-60 absolute left-12 bottom-20"
+			/>
 
 			<button
 				:class="[currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') ? 'bg-black text-white' : '']"
-				@click="currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') && send({type: RiskEventType.TRADE })"
-				v-if="currentPlayer?.cards" class="flex gap-4 absolute right-12 bottom-20 text-5xl font-bold p-4 px-8 rounded-full">
-				{{ currentPlayer.cards.reduce((acc, cur) => (acc + cur?.stars), 0) }}
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-12 h-12"
-					 height="100%" width="100%" version="1.1" id="Capa_1" viewBox="0 0 473.486 473.486"
-									 xml:space="preserve">
-				<polygon
-					fill="currentColor"
-					points="473.486,182.079 310.615,157.952 235.904,11.23 162.628,158.675 0,184.389 117.584,299.641 91.786,462.257   237.732,386.042 384.416,460.829 357.032,298.473 " />
+				@click="currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') && send({type: RiskEventType.TRADE})"
+				v-if="currentPlayer?.cards"
+				class="flex gap-4 absolute right-12 bottom-20 text-5xl font-bold p-4 px-8 rounded-full"
+			>
+				{{ currentPlayer.cards.reduce((acc, cur) => acc + cur?.stars, 0) }}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					xmlns:xlink="http://www.w3.org/1999/xlink"
+					class="w-12 h-12"
+					height="100%"
+					width="100%"
+					version="1.1"
+					id="Capa_1"
+					viewBox="0 0 473.486 473.486"
+					xml:space="preserve"
+				>
+					<polygon
+						fill="currentColor"
+						points="473.486,182.079 310.615,157.952 235.904,11.23 162.628,158.675 0,184.389 117.584,299.641 91.786,462.257   237.732,386.042 384.416,460.829 357.032,298.473 "
+					/>
 				</svg>
-				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light">einlösen</span>
+				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light"
+					>einlösen</span
+				>
 			</button>
 
 			<div class="flex flex-col justify-center items-center gap-4 mb-10">
 				<div class="flex justify-center items-center text-nowrap w-full gap-8">
 					<div
 						class="text-6xl font-bold text-black drop-shadow-sm"
-						:class="[(toTerritory && ownership[toTerritory].troops > 0) && ownership[toTerritory].player !== ownership[fromTerritory].player ? 'text-right w-1/2' : '']"
+						:class="[
+							toTerritory &&
+							ownership[toTerritory].troops > 0 &&
+							ownership[toTerritory].player !== ownership[fromTerritory].player
+								? 'text-right w-1/2'
+								: ''
+						]"
 						:style="`text-decoration: underline ${currentPlayer?.color} 5px;`"
 					>
 						{{ currentPlayer?.name }}
 					</div>
 					<template
-						v-if="(toTerritory && ownership[toTerritory].troops > 0) && ownership[toTerritory].player !== ownership[fromTerritory].player">
+						v-if="
+							toTerritory &&
+							ownership[toTerritory].troops > 0 &&
+							ownership[toTerritory].player !== ownership[fromTerritory].player
+						"
+					>
 						<div
 							class="text-6xl font-bold text-black drop-shadow-sm w-1/2"
 							:style="`text-decoration: underline ${players[ownership[toTerritory].player].color} 5px;`"
@@ -85,27 +113,31 @@
 					</template>
 				</div>
 				<div v-if="fromTerritory || toTerritory" class="flex gap-2 justify-center items-center">
-					<div v-if="fromTerritory"
-						 class="flex justify-center items-center gap-3 uppercase font-light inline-block text-4xl text-black drop-shadow-lg">
+					<div
+						v-if="fromTerritory"
+						class="flex justify-center items-center gap-3 uppercase font-light inline-block text-4xl text-black drop-shadow-lg"
+					>
 						{{ fromTerritory }}
 						<span
-							v-if="!toTerritory || toTerritory && ownership[toTerritory].player !== ownership[fromTerritory].player || (toTerritory && ownership[toTerritory].troops > 0)"
-							class="text-6xl font-semibold">{{ ownership[fromTerritory].troops }}</span>
+							v-if="
+								!toTerritory ||
+								(toTerritory && ownership[toTerritory].player !== ownership[fromTerritory].player) ||
+								(toTerritory && ownership[toTerritory].troops > 0)
+							"
+							class="text-6xl font-semibold"
+							>{{ ownership[fromTerritory].troops }}</span
+						>
 					</div>
 					<template v-if="toTerritory && ownership[toTerritory].troops > 0">
-						<span v-if="ownership[toTerritory].player !== ownership[fromTerritory].player"
-							  class="text-8xl font-thin">X</span>
+						<span v-if="ownership[toTerritory].player !== ownership[fromTerritory].player" class="text-8xl font-thin">X</span>
 						<Continue v-else class="w-8 h-8" />
-						<div
-							class="flex justify-center items-center gap-3 uppercase font-light text-4xl text-black drop-shadow-lg">
+						<div class="flex justify-center items-center gap-3 uppercase font-light text-4xl text-black drop-shadow-lg">
 							<span class="text-6xl font-semibold">{{ ownership[toTerritory].troops }}</span>
 							{{ toTerritory }}
 						</div>
 					</template>
 					<template v-else-if="toTerritory">
-						<div class="inline-block uppercase font-semibold text-4xl text-black drop-shadow-lg">
-							gewinnt
-						</div>
+						<div class="inline-block uppercase font-semibold text-4xl text-black drop-shadow-lg">gewinnt</div>
 					</template>
 				</div>
 				<!--				<div-->
@@ -136,16 +168,15 @@
 						v-for="phase in preGame"
 						class="flex items-center gap-3 text-2xl font-bold p-7 rounded-lg bg-white shadow-sm min-h-32"
 						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-20']"
-						@click="(phase.isActive && nextEvents.includes(RiskEventType.MOVE)) ? sendEvent(RiskEventType.MOVE) : sendEvent(RiskEventType.CONTINUE)"
+						@click="
+							phase.isActive && nextEvents.includes(RiskEventType.MOVE)
+								? sendEvent(RiskEventType.MOVE)
+								: sendEvent(RiskEventType.CONTINUE)
+						"
 					>
 						<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
-								<TroopsStepper
-									:min="2"
-									:max="6"
-									:inputValue="input"
-									@troopsSelected="input = $event"
-								/>
-								{{ phase.label }}
+							<TroopsStepper :min="2" :max="6" :inputValue="input" @troopsSelected="input = $event" />
+							{{ phase.label }}
 						</template>
 						<template v-else>{{ phase.label }}</template>
 					</button>
@@ -317,7 +348,8 @@
 			const game = computed(() => {
 				return [
 					{
-						label: (currentState.value.matches("game.deployment") ? currentPlayer.value.troopsToDeploy + " " : "") + "Verteilen",
+						label:
+							(currentState.value.matches("game.deployment") ? currentPlayer.value.troopsToDeploy + " " : "") + "Verteilen",
 						isActive: currentState.value.matches("game.deployment")
 					},
 					{
@@ -392,7 +424,7 @@
 			};
 
 			window.addEventListener("keydown", (event) => {
-				switch(event.code) {
+				switch (event.code) {
 					case "Escape":
 						reset();
 						break;
