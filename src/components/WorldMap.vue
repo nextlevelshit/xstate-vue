@@ -1,5 +1,5 @@
 <template>
-	<div id="map" class="w-full h-full lg:overflow-hidden"></div>
+	<div id="map" class="w-full h-full overflow-hidden"></div>
 </template>
 
 <script lang="ts">
@@ -39,6 +39,11 @@
 					const map = d3.select("#map");
 
 					(map.node() as HTMLElement)?.append(data.documentElement);
+					const zoom =  d3.zoom().on('zoom', (e) => {
+						d3.select('#map svg g').attr('transform', e.transform);
+					});
+					d3.select("#map svg").call(zoom);
+
 
 					props.territories.forEach(({territory}) => {
 						// Add click event listener to each territory

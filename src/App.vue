@@ -7,7 +7,7 @@
 			:territories="territories"
 			:fromTerritory="fromTerritory"
 			:toTerritory="toTerritory"
-		/>
+		/>1
 	</main>
 
 	<aside
@@ -93,24 +93,25 @@
 								(toTerritory && ownership[toTerritory].troops > 0)
 							"
 							class="text-2xl lg:text-5xl font-semibold"
-						>{{ ownership[fromTerritory].troops }}</span
+							>{{ ownership[fromTerritory].troops }}</span
 						>
 					</div>
 					<template v-if="toTerritory && ownership[toTerritory].troops > 0">
-						<span v-if="ownership[toTerritory].player !== ownership[fromTerritory].player"
-							  class="text-4xl lg:text-8xl font-thin">X</span>
+						<span
+							v-if="ownership[toTerritory].player !== ownership[fromTerritory].player"
+							class="text-4xl lg:text-8xl font-thin"
+							>X</span
+						>
 						<Continue v-else class="w-3 h-3 lg:w-8 lg:h-8" />
 						<div
-							class="flex justify-center items-center gap-2 lg:gap-3 uppercase font-light text-sm lg:text-4xl text-black drop-shadow-lg">
+							class="flex justify-center items-center gap-2 lg:gap-3 uppercase font-light text-sm lg:text-4xl text-black drop-shadow-lg"
+						>
 							<span class="text-2xl lg:text-5xl font-semibold">{{ ownership[toTerritory].troops }}</span>
 							{{ toTerritory }}
 						</div>
 					</template>
 					<template v-else-if="toTerritory">
-						<div
-							class="inline-block uppercase font-semibold text-2xl lg:text-4xl text-black drop-shadow-lg">
-							gewinnt
-						</div>
+						<div class="inline-block uppercase font-semibold text-2xl lg:text-4xl text-black drop-shadow-lg">gewinnt</div>
 					</template>
 				</div>
 			</div>
@@ -135,10 +136,10 @@
 						class="flex items-center text-nowrap gap-2 lg:gap-3 text-md lg:text-xl font-bold p-2 lg:p-3 rounded-lg bg-white shadow-sm min-h-16 lg:min-h-24"
 						:class="[phase.isActive ? `text-white !bg-black` : 'bg-white text-black opacity-20 max-md:hidden']"
 						@click="
-            phase.isActive && nextEvents.includes(RiskEventType.MOVE)
-                ? sendEvent(RiskEventType.MOVE)
-                : sendEvent(RiskEventType.CONTINUE)
-        "
+							phase.isActive && nextEvents.includes(RiskEventType.MOVE)
+								? sendEvent(RiskEventType.MOVE)
+								: sendEvent(RiskEventType.CONTINUE)
+						"
 					>
 						<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
 							<TroopsStepper :min="2" :max="6" :inputValue="input" @troopsSelected="input = $event" />
@@ -168,8 +169,7 @@
 					"
 				>
 					<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
-						<template v-if="maxAvailableTroops < 1 && currentState?.matches({game: 'combat'})"> Rückzug
-						</template>
+						<template v-if="maxAvailableTroops < 1 && currentState?.matches({game: 'combat'})"> Rückzug </template>
 						<template v-else>
 							<TroopsStepper
 								:min="minAvailableTroops"
@@ -266,11 +266,13 @@
 				return currentState.value.context.ownership;
 			});
 
-			const territories = computed<{
-				territory: Territory;
-				player: Player & {index: number};
-				troops?: number
-			}[]>(() => {
+			const territories = computed<
+				{
+					territory: Territory;
+					player: Player & {index: number};
+					troops?: number;
+				}[]
+			>(() => {
 				const allTerritories = currentState.value.context.allTerritories.sort((a, b) => (a > b ? 1 : -1));
 				return allTerritories.map((territory) => {
 					const ownership = currentState.value.context.ownership[territory as Territory];
@@ -434,7 +436,7 @@
 	/* No additional styles needed */
 	@media (max-width: 768px) {
 		svg#svg1 {
-			width: 300vw;
+			width: 100vw;
 		}
 	}
 </style>
