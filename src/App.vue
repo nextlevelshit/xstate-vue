@@ -15,8 +15,8 @@
 		style="perspective: 800px; perspective-origin: 50% 50%"
 	>
 		<div
-			class="flex flex-col justify-between p-4 lg:p-16 rounded-3xl shadow-2xl w-full lg:w-2/3 min-h-96"
-			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 20vh"
+			class="flex flex-col justify-between p-4 lg:p-6 rounded-2xl lg:rounded-full shadow-2xl w-full lg:w-2/3"
+			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 19rem"
 		>
 			<Ownership
 				v-if="!preGame && game"
@@ -29,7 +29,7 @@
 				:class="[currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
 				@click="currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
 				v-if="currentPlayer?.cards"
-				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-14 text-xl lg:text-5xl font-bold p-1 lg:p-4 px-4 lg:px-8 rounded-full"
+				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-auto lg:bottom-28 text-xl lg:text-5xl font-bold p-1 lg:p-4 px-4 lg:px-8 rounded-full"
 			>
 				{{ currentPlayer?.cards.reduce((acc, cur) => acc + cur?.stars, 0) }}
 				<svg
@@ -50,7 +50,7 @@
 				</svg>
 			</button>
 
-			<div class="flex flex-col justify-center items-center gap-10 lg:gap-4 mb-2 lg:mb-10">
+			<div class="flex flex-col justify-center items-center gap-10 lg:gap-4 mb-2">
 				<div class="flex justify-center items-center text-nowrap w-full lg:gap-8">
 					<div
 						class="text-lg lg:text-5xl font-bold text-black drop-shadow lg:drop-shadow-sm"
