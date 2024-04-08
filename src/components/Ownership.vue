@@ -6,11 +6,11 @@
 		name: "Ownership",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player & {index: number}}[]>,
+				type: Array as PropType<{territory: Territory; player: Player & {index: number}; troops?: number}[]>,
 				required: true
 			},
 			currentPlayer: {
-				type: Object as PropType<Player & {index: number}>,
+				type: Object as PropType<Player & {index: number; troops: number;}>,
 				required: false,
 				default: 0
 			}

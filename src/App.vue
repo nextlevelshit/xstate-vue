@@ -35,7 +35,6 @@
 			:territories="territories"
 			:fromTerritory="fromTerritory"
 			:toTerritory="toTerritory"
-			:colors="players.reduce((acc, player) => ({...acc, [player.index]: player.color}), {})"
 		/>
 	</main>
 
@@ -55,8 +54,8 @@
 			/>
 
 			<button
-				:class="[currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') ? 'bg-black text-white' : '']"
-				@click="currentState?.matches('game.deployment.selectingTerritoryOrTradeCards') && send({type: RiskEventType.TRADE})"
+				:class="[currentState?.matches({game: { deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
+				@click="currentState?.matches({game: { deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
 				v-if="currentPlayer?.cards"
 				class="flex gap-4 absolute right-12 bottom-20 text-5xl font-bold p-4 px-8 rounded-full"
 			>
@@ -77,9 +76,9 @@
 						points="473.486,182.079 310.615,157.952 235.904,11.23 162.628,158.675 0,184.389 117.584,299.641 91.786,462.257   237.732,386.042 384.416,460.829 357.032,298.473 "
 					/>
 				</svg>
-				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light"
-					>einlösen</span
-				>
+<!--				<span v-if="false && currentState?.matches('game.deployment.selectingTerritoryOrTradeCards')" class="font-light"-->
+<!--					>einlösen</span-->
+<!--				>-->
 			</button>
 
 			<div class="flex flex-col justify-center items-center gap-4 mb-10">
@@ -202,9 +201,8 @@
 					"
 				>
 					<template v-if="phase.isActive && nextEvents.includes(RiskEventType.MOVE)">
-						<template v-if="maxAvailableTroops < 1 && currentState?.matches('combat')">
+						<template v-if="maxAvailableTroops < 1 && currentState?.matches({game: 'combat'})">
 							Rückzug
-							<span>{{ maxAvailableTroops }}</span>
 						</template>
 						<template v-else>
 							<TroopsStepper
@@ -244,6 +242,7 @@
 	import Back from "./components/Back.vue";
 	import Continue from "./components/Continue.vue";
 	import Ownership from "./components/Ownership.vue";
+	import {getInitialSnapshot} from "xstate";
 
 	export default {
 		name: "App",
@@ -265,7 +264,7 @@
 		},
 		setup() {
 			const initialContext = localStorage.getItem(stateKey);
-			const initialState = initialContext ? JSON.parse(initialContext) : riskMachine.getInitialSnapshot();
+			const initialState = initialContext ? JSON.parse(initialContext) : getInitialSnapshot(riskMachine);
 
 			const {snapshot, send} = useMachine(riskMachine, {
 				snapshot: initialState
@@ -275,7 +274,7 @@
 			const fromTerritory = computed<Territory>(() => currentState.value.context.fromTerritory as Territory);
 			const toTerritory = computed<Territory>(() => currentState.value.context.toTerritory as Territory);
 
-			const players = computed<Array<Player & {index: number}>>(() => {
+			const players = computed<Array<Player & {index: number; troops: number; }>>(() => {
 				const {ownership, players} = currentState.value.context;
 
 				if (!players) return [];
@@ -301,35 +300,35 @@
 				return currentState.value.context.ownership;
 			});
 
-			const territories = computed(() => {
+			const territories = computed<{territory: Territory; player: Player & {index: number}; troops?: number}[]>(() => {
 				const allTerritories = currentState.value.context.allTerritories.sort((a, b) => (a > b ? 1 : -1));
 				return allTerritories.map((territory) => {
 					const ownership = currentState.value.context.ownership[territory as Territory];
-					if (!ownership) return {territory, player: -1, troops: 0};
-					const {player, troops} = currentState.value.context.ownership[territory as Territory];
+					if (!ownership) return {territory, player: {} as Player & {index: number}, troops: 0};
+					const {player, troops} = ownership;
 					return {
 						territory,
 						player: players.value[player],
-						troops: troops
+						troops
 					};
 				});
 			});
 
 			const minAvailableTroops = computed<number>(() => {
-				if (currentState.value.matches("game.combat.fortify")) {
+				if (currentState.value.matches({game: { combat: "fortify" }})) {
 					return Math.min(ownership.value[fromTerritory.value].troops - 1, currentState.value.context.attackerTroops);
 				}
 				return 1;
 			});
 
 			const maxAvailableTroops = computed<number>(() => {
-				if (currentState.value.matches("game.combat.fortify")) {
+				if (currentState.value.matches({game: { combat: "fortify" }})) {
 					return ownership.value[fromTerritory.value].troops - 1;
-				} else if (currentState.value.matches("game.deployment")) {
+				} else if (currentState.value.matches({game: "deployment"})) {
 					return currentPlayer.value.troopsToDeploy;
-				} else if (currentState.value.matches("game.combat")) {
+				} else if (currentState.value.matches({game: "combat"})) {
 					return Math.min(3, ownership.value[fromTerritory.value].troops - 1);
-				} else if (currentState.value.matches("game.consolidation")) {
+				} else if (currentState.value.matches({game: "consolidation"})) {
 					return ownership.value[fromTerritory.value].troops - 1;
 				}
 				return 0;
@@ -349,16 +348,16 @@
 				return [
 					{
 						label:
-							(currentState.value.matches("game.deployment") ? currentPlayer.value.troopsToDeploy + " " : "") + "Verteilen",
-						isActive: currentState.value.matches("game.deployment")
+							(currentState.value.matches({game: "deployment"}) ? currentPlayer.value.troopsToDeploy + " " : "") + "Verteilen",
+						isActive: currentState.value.matches({game: "deployment"})
 					},
 					{
-						label: currentState.value.matches("game.combat.fortify") ? "Truppen verschieben" : "Angreifen",
-						isActive: currentState.value.matches("game.combat")
+						label: currentState.value.matches({game: { combat: "fortify" }}) ? "Truppen verschieben" : "Angreifen",
+						isActive: currentState.value.matches({game: "combat"})
 					},
 					{
 						label: "Befestigen",
-						isActive: currentState.value.matches("game.consolidation")
+						isActive: currentState.value.matches({game: "consolidation"})
 					}
 				];
 			});
@@ -369,32 +368,25 @@
 				const phases = [
 					{
 						label: "Anzahl Spieler",
-						isActive: currentState.value.matches("setup.selectPlayers")
+						isActive: currentState.value.matches({setup: "selectPlayers"})
 					},
 					{
 						label: "Erster Spieler",
-						isActive: currentState.value.matches("setup.firstPlayer")
+						isActive: currentState.value.matches({setup: "firstPlayer"})
 					},
 					{
 						label: "Territorien",
-						isActive: currentState.value.matches("setup.territoryAssignment")
+						isActive: currentState.value.matches({setup: "territoryAssignment"})
 					},
 					{
 						label: "Truppen",
-						isActive: currentState.value.matches("setup.initialDeployment")
+						isActive: currentState.value.matches({setup: "initialDeployment"})
 					},
 					{
 						label: "START",
-						isActive: currentState.value.matches("setup.preparationComplete")
+						isActive: currentState.value.matches({setup: "preparationComplete"})
 					}
 				];
-
-				// if (currentState.value.matches("setup.preparationComplete")) {
-				// 	phases.push({
-				// 		label: "Go go go!",
-				// 		isActive: true
-				// 	})
-				// }
 				return phases;
 			});
 

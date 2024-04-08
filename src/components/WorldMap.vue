@@ -11,11 +11,7 @@
 		name: "WorldMap",
 		props: {
 			territories: {
-				type: Array as PropType<{territory: Territory; player: Player; troops: number; index: number}[]>,
-				required: true
-			},
-			colors: {
-				type: Object as PropType<string[]>,
+				type: Array as PropType<{territory: Territory; player: Player; troops?: number;}[]>,
 				required: true
 			},
 			players: {
@@ -112,7 +108,7 @@
 					map.select(`svg #territories #${territory}-troops`)
 						.attr("opacity", hasCombatOrNoCombat ? 1 : 0)
 						.attr("fill", hasCombat || troops === 0 ? "white" : playerColor)
-						.text(troops);
+						.text(troops || 0);
 
 					map.select(`svg #territories #${territory}-territory`)
 						.attr("opacity", hasCombatOrNoCombat ? 1 : 0.2)
@@ -137,17 +133,17 @@
 						// const x = (from.x + from.width / 2) * 0.5 + (to.x + to.width / 2) * 0.5 + marginX;
 						// const y = (from.y + from.height / 2) * 0.5 + (to.y + to.height / 2) * 0.5 + marginY;
 						//
-						const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
-						const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
+						// const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
+						// const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
 
-						const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
-						const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
+						// const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
+						// const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
 
-						const centerX = mapWidth * 0.5;
-						const centerY = mapHeight * 0.5;
-
-						const centerCombatX = ((from.x + from.width) * 0.5 + (to.x + to.width) * 0.5) * 0.5;
-						const centerCombatY = ((from.y + from.height) * 0.5 + (to.y + to.height) * 0.5) * 0.5;
+						// const centerX = mapWidth * 0.5;
+						// const centerY = mapHeight * 0.5;
+						//
+						// const centerCombatX = ((from.x + from.width) * 0.5 + (to.x + to.width) * 0.5) * 0.5;
+						// const centerCombatY = ((from.y + from.height) * 0.5 + (to.y + to.height) * 0.5) * 0.5;
 
 						// map.append("circle")
 						// 	.attr("r", 10)
@@ -221,7 +217,7 @@
 			onMounted(bootstrapMap);
 
 			watch(
-				() => [props.territories, props.colors, props.players, props.ownership, props.fromTerritory, props.toTerritory],
+				() => [props.territories, props.players, props.ownership, props.fromTerritory, props.toTerritory],
 				renderMap,
 				{deep: true}
 			);
