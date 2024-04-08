@@ -1,12 +1,14 @@
 import {assign} from "xstate";
-import {Context, SelectTroopsEvent, Territory} from "../config/types.ts";
+import {Context, Territory, RiskEvent} from "../config/types.ts";
 import {randomIntFromInterval} from "../util/randomIntFromInterval.ts";
 import {diceInterval} from "../config/constants.ts";
+import type {EventObject} from "xstate";
 
-export const rollTheDice = assign({
-	ownership: ({context, event}: {context: Context; event: SelectTroopsEvent}) => {
+export const rollTheDice = assign<Context, RiskEvent, any, EventObject, never>({
+	ownership: ({context, event}) => {
 		const attackerTroops = event.troops;
-		const defenderTroops = Math.min(event.troops, context.ownership[context.toTerritory as Territory].troops);
+		if (!attackerTroops) throw new Error("No troops to attack with");
+		const defenderTroops = Math.min(attackerTroops, context.ownership[context.toTerritory as Territory].troops);
 		const ownership = {...context.ownership};
 
 		// Simulate dice roll for attacker and defender

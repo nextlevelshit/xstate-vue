@@ -1,7 +1,7 @@
 import {assign} from "xstate";
-import {Context, TerritoryOwnership} from "../config/types.ts";
+import {Context, TerritoryOwnership, RiskEvent} from "../config/types.ts";
 
-export const assignTerritoriesToPlayers = assign({
+export const assignTerritoriesToPlayers = assign<Context, RiskEvent, RiskEvent, never, never>({
 	ownership: ({context}: {context: Context}) => {
 		const {allTerritories, players} = context;
 		const ownership = {} as TerritoryOwnership;
