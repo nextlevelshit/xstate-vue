@@ -39,11 +39,12 @@
 					const map = d3.select("#map");
 
 					(map.node() as HTMLElement)?.append(data.documentElement);
-					const zoom =  d3.zoom().on('zoom', (e) => {
-						d3.select('#map svg g').attr('transform', e.transform);
-					});
-					d3.select("#map svg").call(zoom);
 
+					d3.select("#map svg").call(() =>
+						d3.zoom().on("zoom", (e) => {
+							d3.select("#map svg g").attr("transform", e.transform);
+						})
+					);
 
 					props.territories.forEach(({territory}) => {
 						// Add click event listener to each territory

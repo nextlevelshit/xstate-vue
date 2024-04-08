@@ -7,7 +7,7 @@
 			:territories="territories"
 			:fromTerritory="fromTerritory"
 			:toTerritory="toTerritory"
-		/>1
+		/>
 	</main>
 
 	<aside
