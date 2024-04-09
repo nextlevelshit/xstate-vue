@@ -1,5 +1,5 @@
 <template>
-	<main class="w-full max-md:h-screen max-md:overflow-scroll max-md:mb-60">
+	<main class="w-full h-screen overflow-hidden">
 		<WorldMap
 			@territoryClicked="handleTerritoryClick"
 			:players="players"
