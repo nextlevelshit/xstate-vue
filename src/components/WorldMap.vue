@@ -6,6 +6,7 @@
 	import {onMounted, PropType, watch} from "vue";
 	import * as d3 from "d3";
 	import {Territory, Player, TerritoryOwnership} from "../config/types"; // Import Territory type if necessary
+	import * as d3Zoom from "d3-zoom";
 
 	export default {
 		name: "WorldMap",
@@ -37,14 +38,15 @@
 				d3.xml("map5.svg").then((data: any) => {
 					d3.select("#map svg").remove();
 					const map = d3.select("#map");
-
+					// Append svg to map canvas
 					(map.node() as HTMLElement)?.append(data.documentElement);
 
-					d3.select("#map svg").call(() =>
-						d3.zoom().on("zoom", (e) => {
-							d3.select("#map svg g").attr("transform", e.transform);
-						})
-					);
+					// Append zoom to map canvas
+					let zoom: d3Zoom.ZoomBehavior<Element, unknown>;
+					zoom = d3.zoom().on("zoom", (e) => {
+						d3.select("#map svg g").attr("transform", e.transform);
+					});
+					d3.select<Element, any>("#map svg").call(zoom);
 
 					props.territories.forEach(({territory}) => {
 						// Add click event listener to each territory
