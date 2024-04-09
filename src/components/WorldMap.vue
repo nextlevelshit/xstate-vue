@@ -7,6 +7,7 @@
 	import * as d3 from "d3";
 	import {Territory, Player, TerritoryOwnership} from "../config/types"; // Import Territory type if necessary
 	import * as d3Zoom from "d3-zoom";
+	import {allTerritories} from "../config/constants.ts";
 
 	export default {
 		name: "WorldMap",
@@ -236,9 +237,6 @@
 </script>
 
 <style>
-	svg {
-	}
-
 	svg.combat #territories path:not(.combat) {
 		opacity: 0.2 !important;
 	}
@@ -246,11 +244,11 @@
 	svg.combat #continents,
 	svg.combat #sea_borders {
 		opacity: 0.3;
-		transition: all 460ms ease-in;
+		/*transition: all 460ms ease-in;*/
 	}
 
 	svg:not(.combat) #territories path {
-		transition: all 260ms ease-in;
+		/*transition: all 260ms ease-in;*/
 	}
 
 	svg * {
@@ -281,7 +279,7 @@
 		stroke: #000;
 		visibility: visible;
 		mix-blend-mode: multiply;
-		transition: all 460ms ease-in;
+		/*transition: all 460ms ease-in;*/
 	}
 
 	svg:not(.combat) #territories path:hover {
@@ -303,14 +301,14 @@
 		font-size: 16px;
 		text-anchor: middle;
 		font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
-		transition: all 360ms;
+		/*transition: all 360ms;*/
 	}
 
 	.troopsBackground {
 		fill: black;
 		stroke-width: 0.1;
 		stroke-opacity: 1;
-		transition: all 360ms;
+		/*transition: all 360ms;*/
 		fill-opacity: 0.8;
 	}
 
@@ -319,7 +317,7 @@
 		font-size: 10px;
 		text-anchor: middle;
 		font-family: Teko, Helvetica, Arial, sans-serif;
-		transition: all 360ms;
+		/*transition: all 360ms;*/
 		text-transform: uppercase;
 	}
 </style>
