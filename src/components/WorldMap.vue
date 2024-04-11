@@ -7,7 +7,7 @@
 	import * as d3 from "d3";
 	import {Territory, Player, TerritoryOwnership} from "../config/types"; // Import Territory type if necessary
 	import * as d3Zoom from "d3-zoom";
-	import {ZoomTransform} from "d3";
+	// import {ZoomTransform} from "d3";
 
 	export default {
 		name: "WorldMap",
@@ -46,49 +46,64 @@
 					let zoom: d3Zoom.ZoomBehavior<Element, unknown>;
 					zoom = d3.zoom().on("zoom", (e) => {
 						console.log(e.transform.toString());
-						d3.select("#map svg #g1").attr("transform", e.transform);
+						d3.select("#map svg #g0").attr("transform", e.transform);
 					});
-					// d3.select<Element, any>("#map svg").call(zoom);
+					d3.select<Element, any>("#map svg").call(zoom);
 
 					props.territories.forEach(({territory}) => {
 						// Add click event listener to each territory
 						const territoryElement = map.select(`#${territory}`);
-
+						// Add click event listener to each territory
 						territoryElement.on("click", () => {
 							emit("territory-clicked", territory);
 						});
-
 						// Calculate the middle of the territory
 						const territoryDimensions = (territoryElement.node() as SVGGraphicsElement).getBBox();
 						const middleX = territoryDimensions.x + territoryDimensions.width / 2;
 						const middleY = territoryDimensions.y + territoryDimensions.height / 2;
 
 						// Append troops and territory name to each territory
-						map.select("svg #territories")
+						const bgElement = map.select("svg #territories")
 							.append("circle")
 							.attr("id", `${territory}-circle`)
 							.attr("cx", middleX)
 							.attr("cy", middleY)
-							.attr("r", 16)
+							.attr("r", 20)
 							.attr("class", "troopsBackground")
 							.attr("stroke", "white");
 
-						map.select("svg #territories")
+						const troopsElement = map.select("svg #territories")
 							.append("text") // Append SVG text element
 							.attr("id", `${territory}-troops`)
 							.attr("x", middleX)
 							.attr("y", middleY)
+							.attr("font-size", 16)
 							.attr("dominant-baseline", "central")
 							.attr("class", "troops");
 
-						map.select("svg #territories")
+						const labelElement = map.select("svg #territories")
 							.append("text") // Append SVG text element
 							.attr("id", `${territory}-territory`)
 							.attr("x", middleX)
 							.attr("y", middleY + 24)
 							.attr("fill", "black")
+							.attr("font-size", 10)
 							.attr("dominant-baseline", "central")
 							.attr("class", "territory");
+
+						// // Add mouseover event listener to each territory
+						territoryElement.on("mouseover", () => {
+							bgElement.attr("r", 24);
+							troopsElement.attr("font-size", 22);
+							labelElement.attr("font-size", 20).attr("y", middleY + 36);
+						});
+
+						// Add mouseout event listener to each territory
+						territoryElement.on("mouseout", () => {
+							bgElement.attr("r", 20);
+							troopsElement.attr("font-size", 20);
+							labelElement.attr("font-size", 10).attr("y", middleY + 24);
+						});
 					});
 
 					renderMap();
@@ -126,86 +141,28 @@
 
 					// console.log(territoryElement.getContext("2d"));
 				});
-				const mapWidth = (map.select("#g0").node() as SVGGraphicsElement).getBBox().width;
-				const mapHeight = (map.select("#g0").node() as SVGGraphicsElement).getBBox().height;
+				// const mapWidth = (map.select("#g0").node() as SVGGraphicsElement).getBBox().width;
+				// const mapHeight = (map.select("#g0").node() as SVGGraphicsElement).getBBox().height;
 
-				const centerX = mapWidth * 0.5;
-				const centerY = mapHeight * 0.5;
+				// const centerX = mapWidth * 0.5;
+				// const centerY = mapHeight * 0.5;
 
 				if (props.fromTerritory && props.toTerritory) {
 					const from = (d3.select(`#${props.fromTerritory}`).node() as SVGGraphicsElement).getBBox();
 					const to = (d3.select(`#${props.toTerritory}`).node() as SVGGraphicsElement).getBBox();
+					// let transform = new ZoomTransform(
+					// 	1.6
+					// 	centerX * 0.5 - ((from.x - from.width / 2) + (to.x - to.width / 2)) *.5,
+					// 	centerY * 0.5 - ((from.y - from.width / 2) + (to.y - to.width / 2)) *.5,
+					// );
+					// d3.select("#map svg #g0").attr("transform", transform.toString());
 					if (from && to) {
-						let transform = new ZoomTransform(
-							1.6,
-							centerX * 0.5 - ((from.x - from.width / 2) + (to.x - to.width / 2)) *.5,
-							centerY * 0.5 - ((from.y - from.width / 2) + (to.y - to.width / 2)) *.5,
-						);
-						d3.select("#map svg #g0").attr("transform", transform.toString());
-						// const x = (from.x - (from.width / 2) + to.x - (to.width / 2));
-						// const y = (from.y - (from.height / 2) + to.y - (to.height / 2));
-
-						// SVGs built with Inkscape leave strange transform properties to the top layer
-						// and each group of paths. This values can be found in the SVG itself under ids:
-						// g1 and all groups inside like terrutories, continents etc.
-						//
-						//                                    .---------------.--------- top layer translate
-						//                          .--------|-------.-------|---------- group translate
-						// const [marginX, marginY] = [20 - 191.39741, 20 - 137.15072];
-						// debugger;
-						// const x = (from.x + from.width / 2) * 0.5 + (to.x + to.width / 2) * 0.5 + marginX;
-						// const y = (from.y + from.height / 2) * 0.5 + (to.y + to.height / 2) * 0.5 + marginY;
-						//
-						// const deltaX = from.x + from.width * 0.5 - (to.x + to.width * 0.5);
-						// const deltaY = from.y + from.height * 0.5 - (to.y + to.height * 0.5);
-
-						// const mapWidth = (map.node() as SVGGraphicsElement)?.getBBox().width;
-						// const mapHeight = (map.node() as SVGGraphicsElement)?.getBBox().height;
-
-						// const centerX = mapWidth * 0.5;
-						// const centerY = mapHeight * 0.5;
-						//
-						// const centerCombatX = ((from.x + from.width) * 0.5 + (to.x + to.width) * 0.5) * 0.5;
-						// const centerCombatY = ((from.y + from.height) * 0.5 + (to.y + to.height) * 0.5) * 0.5;
-
-						// map.append("circle")
-						// 	.attr("r", 10)
-						// 	.attr("fill", "transparent")
-						// 	.attr("stroke", "black")
-						// 	.attr("stroke-width", 5)
-						// 	// .attr("cx", )
-						// 	.attr("cx", centerX - deltaX)
-						// 	.attr("cy", centerY - deltaY);
-						//
-						// map.append("circle")
-						// 	.attr("r", 10)
-						// 	.attr("fill", "black")
-						// 	// .attr("cx", )
-						// 	.attr("cx", centerX)
-						// 	.attr("cy", centerY);
-						//
-						// map.append("circle")
-						// 	.attr("r", 20)
-						// 	.attr("fill", "red")
-						// 	// .attr("cx", )
-						// 	.attr("cx", from.x - from.width * 0.5)
-						// 	.attr("cy", from.y - from.height * 0.5);
-						//
-						// map.append("circle")
-						// 	.attr("r", 20)
-						// 	.attr("fill", "green")
-						// 	// .attr("cx", )
-						// 	.attr("cx", to.x - to.width * 0.5)
-						// 	.attr("cy", to.y - to.height * 0.5);
-
 						map.attr("class", "combat");
-					} else {
 					}
 				} else {
 					map.attr("class", "");
-
-					map.attr("transform", `translate(0, 0) scale(1)`);
-					map.select("#g0").attr("transform", `translate(0, 0) scale(1)`);
+					// map.attr("transform", `translate(0, 0) scale(1)`);
+					// map.select("#g0").attr("transform", `translate(0, 0) scale(1)`);
 				}
 			};
 
@@ -289,26 +246,24 @@
 
 	.troops {
 		font-weight: 800;
-		font-size: 16px;
 		text-anchor: middle;
 		font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
-		transition: all 360ms;
+		transition: all 180ms;
 	}
 
 	.troopsBackground {
 		fill: black;
 		stroke-width: 0.1;
 		stroke-opacity: 1;
-		transition: all 360ms;
+		transition: all 180ms;
 		fill-opacity: 0.8;
 	}
 
 	.territory {
 		font-weight: 500;
-		font-size: 10px;
 		text-anchor: middle;
 		font-family: Teko, Helvetica, Arial, sans-serif;
-		transition: all 360ms;
+		transition: all 180ms;
 		text-transform: uppercase;
 	}
 </style>
