@@ -2,13 +2,6 @@ import {Territory, Interval, Continent} from "./types.ts";
 
 export const stateKey = "risk:state";
 export const allBorders: [Territory, Territory[]][] = [
-	// Debug Mode
-	// ["alaska", ["northwest_territory", "greenland", "alberta"]],
-	// ["northwest_territory", ["alaska", "alberta", "ontario"]],
-	// ["greenland", ["northwest_territory", "alberta", "ontario"]],
-	// ["alberta", ["northwest_territory", "ontario", "greenland", "alaska"]],
-	// ["ontario", ["alberta", "northwest_territory", "greenland", "greenland"]],
-
 	["alaska", ["northwest_territory", "kamchatka", "alberta"]],
 	["northwest_territory", ["alaska", "alberta", "greenland", "ontario"]],
 	["greenland", ["northwest_territory", "quebec", "ontario", "iceland"]],
@@ -99,8 +92,6 @@ export const continentBonuses: Continent[] = [
 export const allTerritories = Object.keys(Object.fromEntries(allBorders)) as Territory[];
 export const players = 4;
 export const playerColors = ["#9651fd", "#f3bd28", "#72cbaf", "#ff006e", "#3a86ff", "#fb5607", "#BADA55"];
-
 export const playerNames = ["Katharina d. Große", "Caesar", "Napoleon", "Genghis Khan", "König Tamara", "Cleopatra"];
 export const initialTroopsPerPlayer = Math.floor(allTerritories.length / players) * 4;
-
 export const diceInterval: Interval = [1, 6];
