@@ -11,31 +11,31 @@
 	</main>
 
 	<aside
-		class="lg:sticky fixed bottom-3 max-md:left-2 max-md:right-2 lg:bottom-8 lg:my-20 flex flex-col items-center justify-center z-10 gap-4"
+		class="lg:sticky fixed bottom-3 max-md:left-2 max-md:right-2 lg:bottom-8 lg:my-20 flex flex-col items-center justify-center z-10 gap-4 select-none"
 		style="perspective: 800px; perspective-origin: 50% 50%"
 	>
 		<div
-			class="flex flex-col justify-between p-4 lg:p-6 rounded-2xl lg:rounded-full shadow-2xl w-full lg:w-2/3"
+			class="flex flex-col justify-between p-4 lg:p-6 rounded-2xl lg:rounded-full shadow-2xl w-full xl:w-2/3"
 			style="background: rgba(255, 255, 255, 0.9); transform: rotateX(12deg); backdrop-filter: blur(20px); min-height: 18rem"
 		>
 			<Ownership
 				v-if="!preGame && game"
 				:current-player="currentPlayer"
 				:territories="territories"
-				class="w-16 lg:w-60 absolute left-3 lg:left-12 bottom-auto top-4 lg:top-auto lg:bottom-8"
+				class="w-16 lg:w-20 lg:text-2xl absolute left-3 lg:left-12 bottom-auto top-4 lg:top-auto lg:bottom-28"
 			/>
 
 			<button
 				:class="[currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) ? 'bg-black text-white' : '']"
 				@click="currentState.matches({game: {deployment: 'selectingTerritoryOrTradeCards'}}) && send({type: RiskEventType.TRADE})"
 				v-if="currentPlayer?.cards"
-				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-auto lg:bottom-28 text-xl lg:text-5xl font-bold p-1 lg:p-4 px-4 lg:px-8 rounded-full"
+				class="flex items-center justify-center gap-2 lg:gap-4 absolute right-3 lg:right-12 bottom-auto top-4 lg:top-auto lg:bottom-28 text-xl lg:text-4xl font-bold p-1 lg:p-2 px-4 lg:px-6 rounded-full"
 			>
 				{{ currentPlayer?.cards.reduce((acc, cur) => acc + cur?.stars, 0) }}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					xmlns:xlink="http://www.w3.org/1999/xlink"
-					class="w-5 h-5 lg:w-12 lg:h-12"
+					class="w-5 h-5 lg:w-10 lg:h-10"
 					height="100%"
 					width="100%"
 					version="1.1"
@@ -201,7 +201,7 @@
 	import {ref, computed} from "vue";
 	import {useMachine} from "@xstate/vue";
 	import riskMachine from "./states/riskMachine";
-	import {Territory, Player, RiskEventType} from "./config/types";
+	import {Territory, Player, RiskEventType, RiskEvent} from "./config/types";
 	import {stateKey} from "./config/constants.ts";
 	import WorldMap from "./components/WorldMap.vue";
 	import TroopsStepper from "./components/TroopsStepper.vue";
@@ -220,10 +220,25 @@
 		components: {Ownership, Continue, Back, TroopsStepper, WorldMap},
 		methods: {
 			handleTerritoryClick(territory: Territory) {
-				const event = {
-					type: RiskEventType.SELECT_TERRITORY,
-					territory
-				};
+				let event: RiskEvent;
+				if (this.toTerritory === territory) {
+					this.input = this.maxAvailableTroops;
+					event = {
+						type: RiskEventType.MOVE,
+						troops: this.input
+					};
+				} else {
+					if (this.fromTerritory === territory) {
+						event = {
+							type: RiskEventType.BACK
+						};
+					} else {
+						event = {
+							type: RiskEventType.SELECT_TERRITORY,
+							territory
+						};
+					}
+				}
 				console.log("<<", event);
 				this.send(event);
 			}

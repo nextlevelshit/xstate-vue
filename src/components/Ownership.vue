@@ -48,11 +48,9 @@
 					:transform="transform(i)"
 				/>
 			</svg>
-			<i
-				:style="`color: ${currentPlayer.color}`"
-				class="absolute top-0 bottom-0 flex items-center justify-center font-bold lg:text-6xl w-full"
-				>{{ currentPlayer.troops }}</i
-			>
+			<i :style="`color: ${currentPlayer.color}`" class="absolute top-0 bottom-0 flex items-center justify-center font-bold w-full">{{
+				currentPlayer.troops
+			}}</i>
 		</div>
 	</div>
 </template>

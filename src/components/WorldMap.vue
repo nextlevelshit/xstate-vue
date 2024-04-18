@@ -6,7 +6,6 @@
 	import {onMounted, PropType, watch} from "vue";
 	import * as d3 from "d3";
 	import {Territory, Player, TerritoryOwnership} from "../config/types";
-	import * as d3Zoom from "d3-zoom";
 
 	export default {
 		name: "WorldMap",
@@ -42,12 +41,12 @@
 					(map.node() as HTMLElement)?.append(data.documentElement);
 
 					// Append zoom to map canvas
-					let zoom: d3Zoom.ZoomBehavior<Element, unknown>;
-					zoom = d3.zoom().on("zoom", (e) => {
-						console.log(e.transform.toString());
-						d3.select("#map svg #g0").attr("transform", e.transform);
-					});
-					d3.select<Element, any>("#map svg").call(zoom);
+					// let zoom: d3Zoom.ZoomBehavior<Element, unknown>;
+					// zoom = d3.zoom().on("zoom", (e) => {
+					// 	console.log(e.transform.toString());
+					// 	d3.select("#map svg #g0").attr("transform", e.transform);
+					// });
+					// d3.select<Element, any>("#map svg").call(zoom);
 
 					props.territories.forEach(({territory}) => {
 						// Add click event listener to each territory
@@ -62,25 +61,17 @@
 						const middleY = territoryDimensions.y + territoryDimensions.height / 2;
 
 						// Append troops and territory name to each territory
-						const bgElement = map.select("svg #territories")
+						const bgElement = map
+							.select("svg #territories")
 							.append("circle")
 							.attr("id", `${territory}-circle`)
 							.attr("cx", middleX)
 							.attr("cy", middleY)
-							.attr("r", 20)
 							.attr("class", "troopsBackground")
 							.attr("stroke", "white");
 
-						const troopsElement = map.select("svg #territories")
-							.append("text") // Append SVG text element
-							.attr("id", `${territory}-troops`)
-							.attr("x", middleX)
-							.attr("y", middleY)
-							// .attr("font-size", 16)
-							.attr("dominant-baseline", "central")
-							.attr("class", "troops");
-
-						const labelElement = map.select("svg #territories")
+						const labelElement = map
+							.select("svg #territories")
 							.append("text") // Append SVG text element
 							.attr("id", `${territory}-territory`)
 							.attr("x", middleX)
@@ -88,7 +79,18 @@
 							// .attr("fill", "black")
 							// .attr("font-size", 10)
 							.attr("dominant-baseline", "central")
-							.attr("class", "territory");
+							.attr("class", "territory")
+							.text(territory.replace(/_/g, " "));
+
+						const troopsElement = map
+							.select("svg #territories")
+							.append("text") // Append SVG text element
+							.attr("id", `${territory}-troops`)
+							.attr("x", middleX)
+							.attr("y", middleY)
+							// .attr("font-size", 16)
+							.attr("dominant-baseline", "central")
+							.attr("class", "troops");
 
 						// // Add mouseover event listener to each territory
 						territoryElement.on("mouseover", () => {
@@ -135,17 +137,12 @@
 						territoryTroops.node()?.classList.remove("combat");
 					}
 
-
-					map.select(`svg #territories #${territory}-circle`)
-						.attr("fill", playerColor)
-						.attr("color", playerColor);
+					map.select(`svg #territories #${territory}-circle`).attr("fill", playerColor).attr("color", playerColor);
 
 					map.select(`svg #territories #${territory}-troops`)
 						.attr("color", playerColor)
 						.text(troops || 0);
-					map.select(`svg #territories #${territory}-territory`)
-						.attr("color", playerColor)
-						.text(territory);
+					map.select(`svg #territories #${territory}-territory`).attr("color", playerColor);
 				});
 				// const mapWidth = (map.select("#g0").node() as SVGGraphicsElement).getBBox().width;
 				// const mapHeight = (map.select("#g0").node() as SVGGraphicsElement).getBBox().height;
@@ -192,10 +189,6 @@
 		transition: opacity 200ms ease-in-out;
 	}
 
-	svg.combat {
-		//background: black;
-	}
-
 	svg.combat #territories path:not(.combat) {
 		opacity: 0.3 !important;
 	}
@@ -211,7 +204,7 @@
 	}
 
 	svg * {
-		@apply pointer-events-none cursor-default;
+		@apply pointer-events-none cursor-default select-none;
 	}
 
 	svg #territories path {
@@ -251,19 +244,25 @@
 	}
 
 	.troops {
+		@apply pointer-events-none cursor-default select-none;
+		stroke-width: 0.3;
+		stroke-opacity: 0.4;
+		stroke: black;
+		fill: white;
 		font-weight: 800;
 		text-anchor: middle;
 		font-family: Dosis, Teko, Helvetica, Arial, sans-serif;
-		transition: all 180ms;
+		/*transition: all 200ms cubic-bezier(.12,.98,1,.57);*/
 	}
 
 	.troops.combat {
 		fill: white;
-		font-size: 23px;
+		font-size: 60px;
 	}
 
 	svg:not(.combat) .troops.hover {
-		font-size: 23px;
+		font-size: 48px;
+		fill: white;
 	}
 
 	svg.combat .troops:not(.combat) {
@@ -271,23 +270,33 @@
 	}
 
 	.troopsBackground {
+		@apply pointer-events-none cursor-default select-none;
+		stroke: currentColor;
 		fill: currentColor;
-		stroke: black;
-		stroke-width: 1;
-		stroke-opacity: 0.1;
-		transition: all 180ms;
-		fill-opacity: 0.6;
+		stroke-width: 0.3;
+		stroke-opacity: 1;
+		transition: all 400ms cubic-bezier(0, 1.01, 1, 1);
+		fill-opacity: 0.3;
+		r: 10;
+		mix-blend-mode: multiply;
 	}
 
+	/*
+	svg:not(.combat) .troopsBackground {
+		transition: all 200ms cubic-bezier(0, .72, 1, .18);
+	}
+	 */
 
-	svg:not(.combat) .troopsBackground:not(.combat).hover {
-		fill: currentColor;
+	svg:not(.combat) .troopsBackground.hover {
 		stroke: currentColor;
-		fill-opacity: 0.5;
-		stroke-width: 1;
-		stroke-opacity: 1;
-		r: 26;
+		fill: currentColor;
+		fill-opacity: 0.3;
+		stroke-width: 0;
+		stroke-opacity: 0;
+		opacity: 1;
+		r: 40;
 		z-index: 1000;
+		mix-blend-mode: multiply;
 	}
 
 	svg.combat .troopsBackground:not(.combat) {
@@ -297,31 +306,46 @@
 
 	.troopsBackground.combat {
 		stroke: currentColor;
-		fill-opacity: 0.8;
-		stroke-width: 2;
-		stroke-opacity: 1;
+		fill: currentColor;
+		fill-opacity: 1;
+		stroke-width: 40;
+		stroke-opacity: 0.3;
 		r: 40;
-
+		mix-blend-mode: multiply;
 	}
 
 	.territory {
+		@apply pointer-events-none cursor-default select-none;
 		font-size: 6px;
 		font-weight: 500;
 		text-anchor: middle;
 		font-family: Teko, Helvetica, Arial, sans-serif;
-		transition: all 180ms;
+		/*transition: all 120ms ease-in-out;*/
 		text-transform: uppercase;
 	}
 
-	svg.combat .territory:not(.combat){
+	svg:not(.combat) .territory:not(.combat).hover {
+		fill: black;
+		font-size: 40px;
+		fill-opacity: 1;
+		stroke-width: 0.2;
+		stroke: black;
+		opacity: 1;
+		mix-blend-mode: soft-light;
+	}
+
+	svg.combat .territory:not(.combat) {
 		opacity: 0.3;
 		font-size: 8px;
 	}
 
 	.territory.combat {
-		font-size: 9px;
-		fill: white;
+		fill: black;
+		font-size: 40px;
+		fill-opacity: 1;
+		stroke-width: 0.2;
+		stroke: black;
+		opacity: 1;
+		mix-blend-mode: soft-light;
 	}
-
-
 </style>
